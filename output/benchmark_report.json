@@ -1,0 +1,107 @@
+{
+  "sessions_evaluated": 10,
+  "sentence_level": {
+    "TP": 59,
+    "FP": 3,
+    "FN": 2,
+    "TN": 13,
+    "precision": 0.9516,
+    "recall": 0.9672,
+    "f1": 0.9593
+  },
+  "type_accuracy": 0.7717,
+  "fragment_f1_avg": 0.7631,
+  "offset_error_avg_chars": 5.3,
+  "per_session": [
+    {
+      "session_id": "PF_NG_FUND_1122",
+      "turn_precision": 1.0,
+      "turn_recall": 1.0,
+      "turn_f1": 1.0,
+      "type_accuracy": 0.8333,
+      "fragment_f1_avg": 0.6757,
+      "offset_error_avg": 15.83
+    },
+    {
+      "session_id": "PF_NG_FUND_0889",
+      "turn_precision": 0.8571,
+      "turn_recall": 1.0,
+      "turn_f1": 0.9231,
+      "type_accuracy": 1.0,
+      "fragment_f1_avg": 1.0,
+      "offset_error_avg": 0.0
+    },
+    {
+      "session_id": "PF_NG_FUND_1234",
+      "turn_precision": 0.8571,
+      "turn_recall": 1.0,
+      "turn_f1": 0.9231,
+      "type_accuracy": 0.75,
+      "fragment_f1_avg": 0.3301,
+      "offset_error_avg": 13.62
+    },
+    {
+      "session_id": "PF_NG_FUND_7832",
+      "turn_precision": 0.8571,
+      "turn_recall": 1.0,
+      "turn_f1": 0.9231,
+      "type_accuracy": 1.0,
+      "fragment_f1_avg": 0.9014,
+      "offset_error_avg": 0.0
+    },
+    {
+      "session_id": "PF_NG_FUND_1234",
+      "turn_precision": 1.0,
+      "turn_recall": 1.0,
+      "turn_f1": 1.0,
+      "type_accuracy": 0.7,
+      "fragment_f1_avg": 0.9009,
+      "offset_error_avg": 4.1
+    },
+    {
+      "session_id": "PF_NG_FUND_1115",
+      "turn_precision": 1.0,
+      "turn_recall": 1.0,
+      "turn_f1": 1.0,
+      "type_accuracy": 1.0,
+      "fragment_f1_avg": 1.0,
+      "offset_error_avg": 0.0
+    },
+    {
+      "session_id": "PF_NG_FUND_1119",
+      "turn_precision": 1.0,
+      "turn_recall": 0.8333,
+      "turn_f1": 0.9091,
+      "type_accuracy": 0.6667,
+      "fragment_f1_avg": 0.6996,
+      "offset_error_avg": 5.12
+    },
+    {
+      "session_id": "PF_NG_FUND_1125",
+      "turn_precision": 1.0,
+      "turn_recall": 1.0,
+      "turn_f1": 1.0,
+      "type_accuracy": 0.5455,
+      "fragment_f1_avg": 0.7439,
+      "offset_error_avg": 5.27
+    },
+    {
+      "session_id": "PF_NG_FUND_1222",
+      "turn_precision": 1.0,
+      "turn_recall": 1.0,
+      "turn_f1": 1.0,
+      "type_accuracy": 0.75,
+      "fragment_f1_avg": 0.7337,
+      "offset_error_avg": 5.12
+    },
+    {
+      "session_id": "PF_NG_FUND_1230",
+      "turn_precision": 1.0,
+      "turn_recall": 0.8571,
+      "turn_f1": 0.9231,
+      "type_accuracy": 0.6667,
+      "fragment_f1_avg": 0.6461,
+      "offset_error_avg": 3.92
+    }
+  ]
+}

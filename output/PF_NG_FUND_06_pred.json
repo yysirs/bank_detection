@@ -1,0 +1,224 @@
+{
+  "session_id": "PF_NG_FUND_1115",
+  "business_scenario": "【未来】毎月分配型ファンド 2025版",
+  "client_profile": "山田太郎 (71歳), 職業:高齢の地主",
+  "dialogue": [
+    {
+      "turn": 1,
+      "role": "agent",
+      "text_ja": "山田様、本日はいらっしゃいませ。担当の佐藤です。よろしくお願いします。",
+      "text_zh": "山田先生，欢迎光临。我是负责人佐藤，请多关照。",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 2,
+      "role": "customer",
+      "text_ja": "佐藤さん、今持っている投資信託を整理したくて来ました。最近、分配金が減って心配です。",
+      "text_zh": "佐藤先生，我想整理一下现在持有的投资基金，最近分红减少了很担心。",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 3,
+      "role": "agent",
+      "text_ja": "それなら【未来】毎月分配型ファンド2025版が最適です！A社のファンドは分配金下げ続けているし、運用能力も低いですよ。",
+      "text_zh": "那【未来】每月分配型基金2025版最适合您了！A公司的基金一直在降分红，运营能力也差。",
+      "compliance_status": "violation",
+      "violations": [
+        {
+          "violation_type": "Type 2",
+          "sub_category": "False_Product_Feature",
+          "violation_offsets": [
+            {
+              "fragment": "A社のファンドは分配金下げ続けているし、運用能力も低いですよ",
+              "start": 28,
+              "end": 58
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 4,
+      "role": "customer",
+      "text_ja": "へえ、それは知らなかった。このファンドの特徴は？",
+      "text_zh": "诶，这我不知道。这个基金的特点是什么？",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 5,
+      "role": "agent",
+      "text_ja": "年率8%以上は確実ですよ。元本もほぼ保証されますから安心して。",
+      "text_zh": "年利率8%以上是肯定的。本金也基本有保障，请放心。",
+      "compliance_status": "violation",
+      "violations": [
+        {
+          "violation_type": "Type 1",
+          "sub_category": "Guarantee_Return",
+          "violation_offsets": [
+            {
+              "fragment": "年率8%以上は確実ですよ",
+              "start": 0,
+              "end": 12
+            }
+          ]
+        },
+        {
+          "violation_type": "Type 1",
+          "sub_category": "Guarantee_Principal",
+          "violation_offsets": [
+            {
+              "fragment": "元本もほぼ保証されますから",
+              "start": 13,
+              "end": 26
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 6,
+      "role": "customer",
+      "text_ja": "ちょっと待って、高齢者でも頻繁売買が良いの？今のファンドは長期で持ってたのに。",
+      "text_zh": "等等，老年人也适合频繁买卖吗？我现在持有的基金都是长期持有的。",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 7,
+      "role": "agent",
+      "text_ja": "今買って半年後に売って、また買い直すのが回転売買で儲かります。高齢者こそ短期で稼ぐチャンスです！",
+      "text_zh": "现在买，半年后卖，再重新买，这种回转交易能赚钱。老年人正是短期赚钱的机会！",
+      "compliance_status": "violation",
+      "violations": [
+        {
+          "violation_type": "Type 3",
+          "sub_category": "Churning",
+          "violation_offsets": [
+            {
+              "fragment": "今買って半年後に売って、また買い直すのが回転売買で儲かります",
+              "start": 0,
+              "end": 30
+            }
+          ]
+        },
+        {
+          "violation_type": "Type 3",
+          "sub_category": "Unsuitable_Sales",
+          "violation_offsets": [
+            {
+              "fragment": "高齢者こそ短期で稼ぐチャンスです",
+              "start": 31,
+              "end": 47
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 8,
+      "role": "customer",
+      "text_ja": "回転売買…頻繁に売買する意味ですか？71歳ですが、そんな手間は無理かも。",
+      "text_zh": "回转交易…是指频繁买卖吗？我71岁了，可能没精力做这种麻烦事。",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 9,
+      "role": "agent",
+      "text_ja": "大丈夫ですよ。手続きは全部こちらで代行します。半年ごとに売買すれば、分配金も増えて儲かります。",
+      "text_zh": "没问题的。手续我们全权代办。每半年买卖一次，分红也会增加，能赚钱。",
+      "compliance_status": "violation",
+      "violations": [
+        {
+          "violation_type": "Type 3",
+          "sub_category": "Churning",
+          "violation_offsets": [
+            {
+              "fragment": "半年ごとに売買すれば、分配金も増えて儲かります",
+              "start": 23,
+              "end": 46
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 10,
+      "role": "customer",
+      "text_ja": "リスクは大丈夫？前のファンドも「安全」って言われたのに…",
+      "text_zh": "风险没问题吧？之前的基金也说“安全”结果却…",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 11,
+      "role": "agent",
+      "text_ja": "リスクはほぼないですよ。市場が悪くても分配金は守られます。他社より絶対良いから迷わず！",
+      "text_zh": "风险几乎没有。就算市场不好分红也有保障。比其他公司绝对好，别犹豫！",
+      "compliance_status": "violation",
+      "violations": [
+        {
+          "violation_type": "Type 1",
+          "sub_category": "Risk_Nullification",
+          "violation_offsets": [
+            {
+              "fragment": "リスクはほぼないですよ",
+              "start": 0,
+              "end": 11
+            }
+          ]
+        },
+        {
+          "violation_type": "Type 2",
+          "sub_category": "False_Product_Feature",
+          "violation_offsets": [
+            {
+              "fragment": "市場が悪くても分配金は守られます",
+              "start": 12,
+              "end": 28
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 12,
+      "role": "customer",
+      "text_ja": "本当に？でも頻繁売買、心配で…もう一度説明して。",
+      "text_zh": "真的吗？但我担心频繁买卖…能再解释一遍吗？",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 13,
+      "role": "agent",
+      "text_ja": "今なら特別枠が残ってます！今週末までに申し込めば優先的に入れますよ。",
+      "text_zh": "现在还有特别名额！本周末前申请可以优先加入哦。",
+      "compliance_status": "violation",
+      "violations": [
+        {
+          "violation_type": "Type 6",
+          "sub_category": "Fabricated_Scarcity",
+          "violation_offsets": [
+            {
+              "fragment": "今なら特別枠が残ってます！今週末までに申し込めば優先的に入れますよ",
+              "start": 0,
+              "end": 33
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 14,
+      "role": "customer",
+      "text_ja": "はあ…じゃあ、資料を見てから考えさせてください。",
+      "text_zh": "哈啊…那我看看资料再考虑吧。",
+      "compliance_status": "compliant",
+      "violations": []
+    }
+  ]
+}

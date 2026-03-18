@@ -1,0 +1,232 @@
+{
+  "session_id": "PF_NG_FUND_1125",
+  "business_scenario": "【頂点】毎月分配型ファンド Pro",
+  "client_profile": "山田太郎 (75歳), 職業:専業主婦",
+  "dialogue": [
+    {
+      "turn": 1,
+      "role": "agent",
+      "text_ja": "こんにちは、山田さん。本日はご来店ありがとうございます。担当の佐藤です。よろしくお願いします。",
+      "text_zh": "您好，山田女士。感谢您今天光临。我是负责人佐藤。请多关照。",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 2,
+      "role": "customer",
+      "text_ja": "はい、よろしくお願いします。私、75歳で専業主婦なんですが、損はしたくないから、安全な投資を探してるんです。",
+      "text_zh": "好的，请多关照。我75岁了，是家庭主妇，不想亏钱，所以在找安全的投资。",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 3,
+      "role": "agent",
+      "text_ja": "なるほど、安心が第一ですね。ちょうどおすすめの【頂点】毎月分配型ファンド Proがありますよ。",
+      "text_zh": "明白了，安心是第一位的呢。正好有款推荐的【顶点】每月分配型基金Pro。",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 4,
+      "role": "customer",
+      "text_ja": "毎月分配型… 本当に損しないの？私、元本が減るのが一番怖いんです。",
+      "text_zh": "每月分配型…真的不会亏吗？我最怕本金减少。",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 5,
+      "role": "agent",
+      "text_ja": "大丈夫です、山田さん。このファンドは元本も保証されていますから。安心して任せてください。",
+      "text_zh": "没问题的，山田女士。这款基金连本金都有保障。请放心交给我吧。",
+      "compliance_status": "violation",
+      "violations": [
+        {
+          "violation_type": "Type 1",
+          "sub_category": "Guarantee_Principal",
+          "violation_offsets": [
+            {
+              "fragment": "このファンドは元本も保証されていますから",
+              "start": 11,
+              "end": 31
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 6,
+      "role": "customer",
+      "text_ja": "元本保証？それなら助かります。でも、どうやって毎月分配が出るの？",
+      "text_zh": "本金保障？那太好了。不过，每月分配是怎么来的？",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 7,
+      "role": "agent",
+      "text_ja": "実はこのファンド、毎月分配があるから、受け取ったお金をすぐまた買い戻すのがおすすめです。そうすると、分配金が増えていくんですよ。頻繁に売買しても手数料はかからないから、これを繰り返すのが一番効率的です。",
+      "text_zh": "其实这款基金有每月分配，建议您收到钱后立即再买回来。这样分配金会越来越多哦。频繁买卖也不收手续费，反复这样做最有效率。",
+      "compliance_status": "violation",
+      "violations": [
+        {
+          "violation_type": "Type 3",
+          "sub_category": "Churning",
+          "violation_offsets": [
+            {
+              "fragment": "頻繁に売買しても手数料はかからないから、これを繰り返すのが一番効率的です",
+              "start": 64,
+              "end": 100
+            }
+          ]
+        },
+        {
+          "violation_type": "Type 4",
+          "sub_category": "Hide_Fee",
+          "violation_offsets": [
+            {
+              "fragment": "頻繁に売買しても手数料はかからないから",
+              "start": 64,
+              "end": 83
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 8,
+      "role": "customer",
+      "text_ja": "頻繁に売買… そんなに回数が多いと大丈夫？私、投資初心者だから不安です。",
+      "text_zh": "频繁买卖…次数那么多没问题吗？我是投资新手，很不安。",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 9,
+      "role": "agent",
+      "text_ja": "いえいえ、山田さん。毎月分配が出るたびに、分配金の一部だけ売って、残りを再投資するのが理想的です。これを『回転売買』と呼んで、多くのお客様が成功しています。損を心配するより、こうして積み上げるのが安心です。",
+      "text_zh": "不不，山田女士。每次有分配金时，只卖一部分，剩下的再投资是最理想的。这叫‘回转交易’，很多客户都成功了。与其担心亏损，这样积累才安心。",
+      "compliance_status": "violation",
+      "violations": [
+        {
+          "violation_type": "Type 3",
+          "sub_category": "Churning",
+          "violation_offsets": [
+            {
+              "fragment": "これを『回転売買』と呼んで、多くのお客様が成功しています",
+              "start": 49,
+              "end": 77
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 10,
+      "role": "customer",
+      "text_ja": "回転売買って、本当に私に合うの？リスクは全然ないの？",
+      "text_zh": "回转交易真的适合我吗？完全没有风险吗？",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 11,
+      "role": "agent",
+      "text_ja": "リスクなんてほとんどありません。このファンドはプロが管理していて、市場が下がっても分配金は守られます。毎月少しずつ売って買って、資産が増えるのを見るのが楽しいですよ。",
+      "text_zh": "几乎没什么风险。这款基金由专业人士管理，即使市场下跌分配金也有保障。每月一点点买卖，看着资产增加很有趣哦。",
+      "compliance_status": "violation",
+      "violations": [
+        {
+          "violation_type": "Type 1",
+          "sub_category": "Risk_Nullification",
+          "violation_offsets": [
+            {
+              "fragment": "リスクなんてほとんどありません",
+              "start": 0,
+              "end": 15
+            }
+          ]
+        },
+        {
+          "violation_type": "Type 2",
+          "sub_category": "False_Product_Feature",
+          "violation_offsets": [
+            {
+              "fragment": "市場が下がっても分配金は守られます",
+              "start": 33,
+              "end": 50
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 12,
+      "role": "customer",
+      "text_ja": "他のファンドと比べて、この回転売買が特別なの？手数料は本当にかからないの？",
+      "text_zh": "和其他基金比，这种回转交易特别在哪？手续费真的不收吗？",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 13,
+      "role": "agent",
+      "text_ja": "はい、このファンドは毎月分配が魅力で、回転売買をすれば複利効果が倍増します。今なら申込みが混み合ってますが、早く始めた方が良いですよ。",
+      "text_zh": "是的，这款基金的魅力是每月分配，做回转交易复利效果会翻倍。现在申请的人很多，还是早点开始好。",
+      "compliance_status": "violation",
+      "violations": [
+        {
+          "violation_type": "Type 1",
+          "sub_category": "Exaggerated_Profit",
+          "violation_offsets": [
+            {
+              "fragment": "回転売買をすれば複利効果が倍増します",
+              "start": 19,
+              "end": 37
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 14,
+      "role": "customer",
+      "text_ja": "複利効果倍増… でも、本当に大丈夫？もう一度、回転売買のメリットを教えて。",
+      "text_zh": "复利效果翻倍…但真的没问题吗？再跟我说一遍回转交易的好处。",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 15,
+      "role": "agent",
+      "text_ja": "いいえ、簡単です。私が全部設定してあげます。毎月自動で分配金を再投資するようにして、さらに少しだけ追加で買うのをお勧めします。これで資産がぐんぐん増えますよ。",
+      "text_zh": "不，很简单。我帮您全部设置好。建议每月自动将分配金再投资，再稍微追加一点购买。这样资产就会蹭蹭上涨哦。",
+      "compliance_status": "violation",
+      "violations": [
+        {
+          "violation_type": "Type 1",
+          "sub_category": "Exaggerated_Profit",
+          "violation_offsets": [
+            {
+              "fragment": "これで資産がぐんぐん増えますよ",
+              "start": 63,
+              "end": 78
+            }
+          ]
+        },
+        {
+          "violation_type": "Type 4",
+          "sub_category": "Non_Disclosure_Risk",
+          "violation_offsets": [
+            {
+              "fragment": "これで資産がぐんぐん増えますよ",
+              "start": 63,
+              "end": 78
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

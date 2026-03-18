@@ -1,0 +1,15 @@
+version: '2.1'
+services:
+  bank_detect:
+    image: bank_detect:v1
+    container_name: bank_detect
+    environment:
+      - LANG=C.UTF-8
+      - TZ=Asia/Shanghai
+    ports:
+      - 16323:16323
+    volumes:
+      - ./logs:/app/logs
+    restart: "always"
+    command: bash /app/start.sh
+

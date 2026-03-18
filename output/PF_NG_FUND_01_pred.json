@@ -1,0 +1,179 @@
+{
+  "session_id": "PF_NG_FUND_1122",
+  "business_scenario": "【金尊】未公開株(PE) α",
+  "client_profile": "山田太郎 (60歳), 職業:フリーター",
+  "dialogue": [
+    {
+      "turn": 1,
+      "role": "agent",
+      "text_ja": "こんにちは、山田様。本日は当店へようこそ。担当の佐藤と申します。よろしくお願いいたします。",
+      "text_zh": "您好，山田先生。欢迎光临本店。我是负责人佐藤，请多关照。",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 2,
+      "role": "customer",
+      "text_ja": "佐藤さん、こんにちは。最近投資の話を聞いて、ちょっと興味が出てきたんだけど…まずは色々教えてもらえる？",
+      "text_zh": "佐藤先生，你好。最近听说了些投资的事，有点兴趣…能先给我讲讲吗？",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 3,
+      "role": "agent",
+      "text_ja": "承知いたしました。当店の人気商品【金尊】未公開株(PE) αをご紹介しましょう。成長期待の高い未公開株に投資するPEファンドです。",
+      "text_zh": "好的。为您介绍一下本店的畅销产品【金尊】未公开股(PE) α。这是投资于高成长预期未公开股的PE基金。",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 4,
+      "role": "customer",
+      "text_ja": "未公開株か…リスクは大丈夫？元本は守れるの？",
+      "text_zh": "未公开股啊…风险没问题吗？本金能保住吗？",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 5,
+      "role": "agent",
+      "text_ja": "山田様、心配いりませんよ。昨年度の実績が25%で、一昨年も22%だったので、これからも同じペースで必ず利益が出ることを保証できます。",
+      "text_zh": "山田先生，不用担心。去年业绩25%，前年也是22%，所以可以保证今后也以同样速度获利。",
+      "compliance_status": "violation",
+      "violations": [
+        {
+          "violation_type": "Type 1",
+          "sub_category": "Certainty_Future",
+          "violation_offsets": [
+            {
+              "fragment": "これからも同じペースで必ず利益が出ることを保証できます",
+              "start": 38,
+              "end": 65
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 6,
+      "role": "customer",
+      "text_ja": "え？過去の実績で将来を保証するの？それ本当に許されるの？",
+      "text_zh": "哎？用过去的业绩保证将来？这真的允许吗？",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 7,
+      "role": "agent",
+      "text_ja": "山田様、この商品は特別なんです。過去3年連続で20%超のリターンを出してるから、今回も間違いなく同じように儲かりますよ。",
+      "text_zh": "山田先生，这款产品很特别。过去3年连续20%以上回报，这次也肯定能赚一样多。",
+      "compliance_status": "violation",
+      "violations": [
+        {
+          "violation_type": "Type 1",
+          "sub_category": "Certainty_Future",
+          "violation_offsets": [
+            {
+              "fragment": "今回も間違いなく同じように儲かりますよ",
+              "start": 40,
+              "end": 59
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 8,
+      "role": "customer",
+      "text_ja": "でも未公開株は流動性低いって聞くし…損する可能性もあるんでしょ？",
+      "text_zh": "但是听说未公开股流动性低…也有亏损的可能吧？",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 9,
+      "role": "agent",
+      "text_ja": "いえいえ、山田様。弊社の選んだ銘柄は例外で、過去の実績を見れば分かる通り、下落なんて一度もなかったんです。これからも安全に増やせます。",
+      "text_zh": "不不，山田先生。我们选的股票是例外，看过去业绩就知道，一次都没跌过。今后也能安全增值。",
+      "compliance_status": "violation",
+      "violations": [
+        {
+          "violation_type": "Type 1",
+          "sub_category": "Absolute_Safety",
+          "violation_offsets": [
+            {
+              "fragment": "これからも安全に増やせます",
+              "start": 53,
+              "end": 66
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 10,
+      "role": "customer",
+      "text_ja": "私、60歳でフリーターなんだけど…こんな積極的な投資、本当に合ってる？",
+      "text_zh": "我60岁了还是自由职业…这么积极的投资真的适合我吗？",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 11,
+      "role": "agent",
+      "text_ja": "大丈夫ですよ！山田様なら余裕です。今月ノルマが厳しいんで、このチャンスを逃したら後悔しますよ。",
+      "text_zh": "没问题的！山田先生您完全没问题。我这月业绩压力大，错过这个机会会后悔的。",
+      "compliance_status": "violation",
+      "violations": [
+        {
+          "violation_type": "Type 6",
+          "sub_category": "Pressure_Tactic",
+          "violation_offsets": [
+            {
+              "fragment": "今月ノルマが厳しいんで、このチャンスを逃したら後悔しますよ",
+              "start": 17,
+              "end": 46
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 12,
+      "role": "customer",
+      "text_ja": "ちょっと考えさせて…急がなくてもいいよね？",
+      "text_zh": "让我再想想…不用急吧？",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 13,
+      "role": "agent",
+      "text_ja": "山田様、去年のお客様も同じこと言ってたけど、結局契約して、今では毎月配当金が入って喜んでます。過去の実績が証明してますから、今回も必ず成功します。",
+      "text_zh": "山田先生，去年的客人也说要考虑，结果签约了，现在每月拿分红很高兴。过去业绩证明了，这次也一定成功。",
+      "compliance_status": "violation",
+      "violations": [
+        {
+          "violation_type": "Type 1",
+          "sub_category": "Certainty_Future",
+          "violation_offsets": [
+            {
+              "fragment": "今回も必ず成功します",
+              "start": 62,
+              "end": 72
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 14,
+      "role": "customer",
+      "text_ja": "うーん…もう一度資料見せてくれる？明日また来るよ。",
+      "text_zh": "嗯…能再给我看看资料吗？明天再来吧。",
+      "compliance_status": "compliant",
+      "violations": []
+    }
+  ]
+}

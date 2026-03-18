@@ -1,0 +1,276 @@
+{
+  "session_id": "PF_NG_FUND_1230",
+  "business_scenario": "【富岳】AIテーマ株ファンド 尊享版",
+  "client_profile": "山田太郎 (42歳), 職業:新入社員",
+  "dialogue": [
+    {
+      "turn": 1,
+      "role": "agent",
+      "text_ja": "こんにちは、山田様。本日は当店へようこそ。担当の佐藤です。よろしくお願いします。",
+      "text_zh": "您好，山田先生。欢迎光临本店。我是负责人佐藤。请多关照。",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 2,
+      "role": "customer",
+      "text_ja": "すみません、急いでるんですが、【富岳】AIテーマ株ファンド 尊享版って知ってます？",
+      "text_zh": "不好意思，我赶时间，知道【富岳】AI主题股基金 尊享版吗？",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 3,
+      "role": "agent",
+      "text_ja": "はい、知ってますよ。【富岳】AIテーマ株ファンド 尊享版はAI関連株に集中してるから、値動きが激しいけど短期で売買繰り返せば確実に儲かりますよ。",
+      "text_zh": "是的，我知道。【富岳】AI主题股基金 尊享版集中投资于AI相关股票，虽然波动大，但短期反复买卖肯定能赚钱哦。",
+      "compliance_status": "violation",
+      "violations": [
+        {
+          "violation_type": "Type 1",
+          "sub_category": "Certainty_Future",
+          "violation_offsets": [
+            {
+              "fragment": "短期で売買繰り返せば確実に儲かりますよ",
+              "start": 52,
+              "end": 71
+            }
+          ]
+        },
+        {
+          "violation_type": "Type 3",
+          "sub_category": "Churning",
+          "violation_offsets": [
+            {
+              "fragment": "短期で売買繰り返せば確実に儲かりますよ",
+              "start": 52,
+              "end": 71
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 4,
+      "role": "customer",
+      "text_ja": "値動きが激しいってことはリスク高いんじゃ…本当に大丈夫？",
+      "text_zh": "波动大意味着风险高吧…真的没问题吗？",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 5,
+      "role": "agent",
+      "text_ja": "大丈夫ですよ、このファンドはAIブームだから下がらないし、月に2回売買するだけで安定して利益が出ます。",
+      "text_zh": "没问题的，这个基金因为AI热潮不会下跌，每月买卖两次就能稳定获利。",
+      "compliance_status": "violation",
+      "violations": [
+        {
+          "violation_type": "Type 1",
+          "sub_category": "Risk_Nullification",
+          "violation_offsets": [
+            {
+              "fragment": "下がらないし",
+              "start": 22,
+              "end": 28
+            }
+          ]
+        },
+        {
+          "violation_type": "Type 1",
+          "sub_category": "Guarantee_Return",
+          "violation_offsets": [
+            {
+              "fragment": "月に2回売買するだけで安定して利益が出ます",
+              "start": 29,
+              "end": 50
+            }
+          ]
+        },
+        {
+          "violation_type": "Type 3",
+          "sub_category": "Churning",
+          "violation_offsets": [
+            {
+              "fragment": "月に2回売買するだけで安定して利益が出ます",
+              "start": 29,
+              "end": 50
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 6,
+      "role": "customer",
+      "text_ja": "でも私、新入社員で貯金も少ないんです。そんなに頻繁に売買できる？",
+      "text_zh": "但我是个新员工，存款也不多。能频繁买卖吗？",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 7,
+      "role": "agent",
+      "text_ja": "大丈夫、少額でも回転売買すれば利益が積み上がりますよ。今月中に3回売って買って、また売ればOK！",
+      "text_zh": "没关系，小额也能通过回转交易积累利润哦。这个月内卖三次买一次，再卖就行！",
+      "compliance_status": "violation",
+      "violations": [
+        {
+          "violation_type": "Type 3",
+          "sub_category": "Churning",
+          "violation_offsets": [
+            {
+              "fragment": "回転売買すれば利益が積み上がりますよ。今月中に3回売って買って、また売ればOK！",
+              "start": 8,
+              "end": 48
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 8,
+      "role": "customer",
+      "text_ja": "本当にそんなに簡単に儲かるの？過去の例はある？",
+      "text_zh": "真的这么容易赚钱吗？有过去的例子吗？",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 9,
+      "role": "agent",
+      "text_ja": "もちろん、去年の同ファンドは月2回売買で平均8%増えてます。回転売買こそ初心者向きですよ！",
+      "text_zh": "当然，去年的同一基金每月买卖两次平均增长8%。回转交易才适合新手哦！",
+      "compliance_status": "violation",
+      "violations": [
+        {
+          "violation_type": "Type 2",
+          "sub_category": "False_History",
+          "violation_offsets": [
+            {
+              "fragment": "去年の同ファンドは月2回売買で平均8%増えてます",
+              "start": 5,
+              "end": 29
+            }
+          ]
+        },
+        {
+          "violation_type": "Type 3",
+          "sub_category": "Churning",
+          "violation_offsets": [
+            {
+              "fragment": "回転売買こそ初心者向きですよ！",
+              "start": 30,
+              "end": 45
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 10,
+      "role": "customer",
+      "text_ja": "でも契約前に仕組みとリスクの説明を聞きたいんですが…",
+      "text_zh": "但我想在签约前听听机制和风险的说明…",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 11,
+      "role": "agent",
+      "text_ja": "説明は後でいいでしょ？急いでるんでしょ？今サインしておけばすぐ始められますよ！",
+      "text_zh": "说明后面再说吧？你不是赶时间吗？现在签了就能马上开始哦！",
+      "compliance_status": "violation",
+      "violations": [
+        {
+          "violation_type": "Type 4",
+          "sub_category": "Skip_Terms",
+          "violation_offsets": [
+            {
+              "fragment": "説明は後でいいでしょ？",
+              "start": 0,
+              "end": 11
+            }
+          ]
+        },
+        {
+          "violation_type": "Type 5",
+          "sub_category": "Pressure_Sign",
+          "violation_offsets": [
+            {
+              "fragment": "今サインしておけばすぐ始められますよ！",
+              "start": 20,
+              "end": 39
+            }
+          ]
+        },
+        {
+          "violation_type": "Type 6",
+          "sub_category": "False_Urgency",
+          "violation_offsets": [
+            {
+              "fragment": "急いでるんでしょ？今サインしておけばすぐ始められますよ！",
+              "start": 11,
+              "end": 39
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 12,
+      "role": "customer",
+      "text_ja": "でも急がなくても…サインする前にちゃんと理解したいです。",
+      "text_zh": "但不着急…我想在签字前好好理解一下。",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 13,
+      "role": "agent",
+      "text_ja": "回転売買なら複雑じゃないから大丈夫！今週中に2回売買する計画を立てましょうよ。",
+      "text_zh": "回转交易不复杂所以没问题！我们制定本周内买卖两次的计划吧。",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 14,
+      "role": "customer",
+      "text_ja": "回転売買が絶対にいいの？他の方法はない？",
+      "text_zh": "回转交易绝对好吗？没有其他方法吗？",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 15,
+      "role": "agent",
+      "text_ja": "そうです、回転売買こそこのファンドの醍醐味です。早くサインして始めましょう！",
+      "text_zh": "是的，回转交易才是这个基金的精髓。快点签字开始吧！",
+      "compliance_status": "violation",
+      "violations": [
+        {
+          "violation_type": "Type 5",
+          "sub_category": "Pressure_Sign",
+          "violation_offsets": [
+            {
+              "fragment": "早くサインして始めましょう！",
+              "start": 24,
+              "end": 38
+            }
+          ]
+        },
+        {
+          "violation_type": "Type 4",
+          "sub_category": "Non_Disclosure_Risk",
+          "violation_offsets": [
+            {
+              "fragment": "回転売買こそこのファンドの醍醐味です",
+              "start": 5,
+              "end": 23
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

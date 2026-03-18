@@ -1,0 +1,243 @@
+{
+  "session_id": "PF_NG_FUND_1234",
+  "business_scenario": "【富岳】AIテーマ株ファンド α",
+  "client_profile": "山田太郎 (61歳), 職業:工場作業員",
+  "dialogue": [
+    {
+      "turn": 1,
+      "role": "agent",
+      "text_ja": "こんにちは、山田様。本日はいらっしゃいませ。担当の佐藤と申します。よろしくお願いいたします。",
+      "text_zh": "您好，山田先生。欢迎光临。我是负责人佐藤，请多关照。",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 2,
+      "role": "customer",
+      "text_ja": "すみません、最近少し余裕ができたので、安全な投資を探してるんですが…",
+      "text_zh": "不好意思，最近有点闲钱，想找安全的投资…",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 3,
+      "role": "agent",
+      "text_ja": "【富岳】AIテーマ株ファンド αはおすすめです。分配金は利息と同じで、毎月安定して入金されますよ。",
+      "text_zh": "推荐您【富岳】AI主题股基金α。分配金和利息一样，每月稳定入账哦。",
+      "compliance_status": "violation",
+      "violations": [
+        {
+          "violation_type": "Type 2",
+          "sub_category": "Misstate_Mechanism",
+          "violation_offsets": [
+            {
+              "fragment": "分配金は利息と同じで、毎月安定して入金されますよ",
+              "start": 24,
+              "end": 48
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 4,
+      "role": "customer",
+      "text_ja": "利息…ですか？本当に毎月もらえるんですか？",
+      "text_zh": "利息…吗？真的每月都能拿到吗？",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 5,
+      "role": "agent",
+      "text_ja": "ええ、分配金は利息みたいに固定で入ってきますから安心です。",
+      "text_zh": "是的，分配金像利息一样固定入账，请放心。",
+      "compliance_status": "violation",
+      "violations": [
+        {
+          "violation_type": "Type 2",
+          "sub_category": "Misstate_Mechanism",
+          "violation_offsets": [
+            {
+              "fragment": "分配金は利息みたいに固定で入ってきますから安心です",
+              "start": 3,
+              "end": 28
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 6,
+      "role": "customer",
+      "text_ja": "元本は大丈夫ですか？工場の給料だけじゃ不安で…",
+      "text_zh": "本金没问题吧？光靠工厂工资总觉得不安…",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 7,
+      "role": "agent",
+      "text_ja": "元本も保証されてますよ。AI株は上がる一方ですから、損することはありません。",
+      "text_zh": "本金也有保障哦。AI股只会涨，不会亏的。",
+      "compliance_status": "violation",
+      "violations": [
+        {
+          "violation_type": "Type 1",
+          "sub_category": "Guarantee_Principal",
+          "violation_offsets": [
+            {
+              "fragment": "元本も保証されてますよ",
+              "start": 0,
+              "end": 11
+            }
+          ]
+        },
+        {
+          "violation_type": "Type 1",
+          "sub_category": "Risk_Nullification",
+          "violation_offsets": [
+            {
+              "fragment": "損することはありません",
+              "start": 26,
+              "end": 37
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 8,
+      "role": "customer",
+      "text_ja": "他の定期預金と比べてどうですか？利率は高いんですか？",
+      "text_zh": "和其他定期存款比怎么样？利率更高吗？",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 9,
+      "role": "agent",
+      "text_ja": "定期よりずっと良いですよ。分配金（利息）が年率5%以上になることも多いですから。",
+      "text_zh": "比定期好多了。分配金（利息）很多时候年利率能超5%呢。",
+      "compliance_status": "violation",
+      "violations": [
+        {
+          "violation_type": "Type 2",
+          "sub_category": "Misstate_Mechanism",
+          "violation_offsets": [
+            {
+              "fragment": "分配金（利息）が年率5%以上になることも多いですから",
+              "start": 13,
+              "end": 39
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 10,
+      "role": "customer",
+      "text_ja": "本当に利息みたいに安定するんですね…でも投資ってリスクあるって聞いたことあるんです。",
+      "text_zh": "真的像利息一样稳定啊…但我听说投资有风险的。",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 11,
+      "role": "agent",
+      "text_ja": "大丈夫、このファンドはAIが自動で売買するから、リスクはほぼゼロです。分配金は利息同様に確実です。",
+      "text_zh": "没事，这基金AI自动买卖，风险几乎为零。分配金和利息一样可靠。",
+      "compliance_status": "violation",
+      "violations": [
+        {
+          "violation_type": "Type 1",
+          "sub_category": "Risk_Nullification",
+          "violation_offsets": [
+            {
+              "fragment": "リスクはほぼゼロです",
+              "start": 24,
+              "end": 34
+            }
+          ]
+        },
+        {
+          "violation_type": "Type 1",
+          "sub_category": "Guarantee_Return",
+          "violation_offsets": [
+            {
+              "fragment": "分配金は利息同様に確実です",
+              "start": 35,
+              "end": 48
+            }
+          ]
+        },
+        {
+          "violation_type": "Type 2",
+          "sub_category": "Misstate_Mechanism",
+          "violation_offsets": [
+            {
+              "fragment": "分配金は利息同様に確実です",
+              "start": 35,
+              "end": 48
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 12,
+      "role": "customer",
+      "text_ja": "じゃあ、今すぐ始めた方がいいですか？",
+      "text_zh": "那我现在就开始好吗？",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 13,
+      "role": "agent",
+      "text_ja": "はい、今なら限定枠があるので、早めに決めた方が良いですよ。分配金（利息）は来月からもらえますから。",
+      "text_zh": "是的，现在有名额限制，早点决定好。分配金（利息）下个月就能拿了。",
+      "compliance_status": "violation",
+      "violations": [
+        {
+          "violation_type": "Type 6",
+          "sub_category": "Fabricated_Scarcity",
+          "violation_offsets": [
+            {
+              "fragment": "今なら限定枠があるので、早めに決めた方が良いですよ",
+              "start": 3,
+              "end": 28
+            }
+          ]
+        },
+        {
+          "violation_type": "Type 2",
+          "sub_category": "Misstate_Mechanism",
+          "violation_offsets": [
+            {
+              "fragment": "分配金（利息）は来月からもらえますから",
+              "start": 29,
+              "end": 48
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 14,
+      "role": "customer",
+      "text_ja": "わかりました…じゃあ、これでお願いします。",
+      "text_zh": "明白了…那就这个吧。",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 15,
+      "role": "agent",
+      "text_ja": "承知しました。では契約書をご署名ください。",
+      "text_zh": "好的，请在这份合同上签字。",
+      "compliance_status": "compliant",
+      "violations": []
+    }
+  ]
+}

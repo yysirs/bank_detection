@@ -1,0 +1,244 @@
+{
+  "session_id": "PF_NG_FUND_1234",
+  "business_scenario": "【富岳】AIテーマ株ファンド 尊享版",
+  "client_profile": "山田太郎 (74歳), 職業:定年退職者",
+  "dialogue": [
+    {
+      "turn": 1,
+      "role": "agent",
+      "text_ja": "こんにちは、山田様。本日はご来店ありがとうございます。担当の佐藤です。よろしくお願いいたします。",
+      "text_zh": "您好，山田先生。感谢您今天光临。我是负责人佐藤。请多关照。",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 2,
+      "role": "customer",
+      "text_ja": "はい、定年後の生活資金を少し増やしたくて、安全な投資を探してるんです。不安で…",
+      "text_zh": "是的，我想稍微增加一些退休后的生活资金，正在寻找安全的投资。有点担心…",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 3,
+      "role": "agent",
+      "text_ja": "【富岳】AIテーマ株ファンド 尊享版なら安心ですよ。特に分配金が魅力で、これは利息と同じように毎月入ってきますから。",
+      "text_zh": "【富岳】AI主题股基金 尊享版就很安心哦。特别是分配金很有吸引力，这和利息一样每月都会到账。",
+      "compliance_status": "violation",
+      "violations": [
+        {
+          "violation_type": "Type 2",
+          "sub_category": "Misstate_Mechanism",
+          "violation_offsets": [
+            {
+              "fragment": "分配金が魅力で、これは利息と同じように毎月入ってきますから",
+              "start": 28,
+              "end": 57
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 4,
+      "role": "customer",
+      "text_ja": "え？分配金が利息？毎月固定で入るんですか？本当に？",
+      "text_zh": "哎？分配金是利息？每月固定到账吗？真的吗？",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 5,
+      "role": "agent",
+      "text_ja": "そうですよ、間違いありません。このファンドの分配金は利息と一緒で、安定して受け取れます。",
+      "text_zh": "是的，没错。这个基金的分配金和利息一样，能稳定领取。",
+      "compliance_status": "violation",
+      "violations": [
+        {
+          "violation_type": "Type 2",
+          "sub_category": "Misstate_Mechanism",
+          "violation_offsets": [
+            {
+              "fragment": "このファンドの分配金は利息と一緒で、安定して受け取れます",
+              "start": 15,
+              "end": 43
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 6,
+      "role": "customer",
+      "text_ja": "でも株ファンドってリスクあるって聞いたことあるけど…大丈夫？",
+      "text_zh": "可是我听说股票基金有风险…没问题吗？",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 7,
+      "role": "agent",
+      "text_ja": "AIテーマは成長が見込めるから、リスクはほぼないですよ。分配金は保証されてますし。",
+      "text_zh": "AI主题前景看好，所以风险几乎没有哦。而且分配金是有保证的。",
+      "compliance_status": "violation",
+      "violations": [
+        {
+          "violation_type": "Type 1",
+          "sub_category": "Risk_Nullification",
+          "violation_offsets": [
+            {
+              "fragment": "リスクはほぼないですよ",
+              "start": 16,
+              "end": 27
+            }
+          ]
+        },
+        {
+          "violation_type": "Type 1",
+          "sub_category": "Guarantee_Return",
+          "violation_offsets": [
+            {
+              "fragment": "分配金は保証されてますし",
+              "start": 28,
+              "end": 40
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 8,
+      "role": "customer",
+      "text_ja": "他の定期預金より利息高いんですか？",
+      "text_zh": "比其他定期存款的利息高吗？",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 9,
+      "role": "agent",
+      "text_ja": "はい、年率5％の利息に近い分配金が毎月入ります。元本も減らないので安心です。",
+      "text_zh": "是的，每月会到账接近年利率5%利息的分配金。本金也不会减少，请放心。",
+      "compliance_status": "violation",
+      "violations": [
+        {
+          "violation_type": "Type 2",
+          "sub_category": "Misstate_Mechanism",
+          "violation_offsets": [
+            {
+              "fragment": "年率5％の利息に近い分配金が毎月入ります",
+              "start": 3,
+              "end": 23
+            }
+          ]
+        },
+        {
+          "violation_type": "Type 1",
+          "sub_category": "Guarantee_Principal",
+          "violation_offsets": [
+            {
+              "fragment": "元本も減らないので安心です",
+              "start": 24,
+              "end": 37
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 10,
+      "role": "customer",
+      "text_ja": "毎月確実に入るなら、これにしようかな…",
+      "text_zh": "如果每月确实能到账，我就选这个吧…",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 11,
+      "role": "agent",
+      "text_ja": "そうしましょう！昨年加入した方は毎月2万円ずつ分配金（利息）をもらえてますから。",
+      "text_zh": "就选这个吧！去年加入的人每月都能拿到2万日元左右的分配金（利息）呢。",
+      "compliance_status": "violation",
+      "violations": [
+        {
+          "violation_type": "Type 2",
+          "sub_category": "Misstate_Mechanism",
+          "violation_offsets": [
+            {
+              "fragment": "毎月2万円ずつ分配金（利息）をもらえてますから",
+              "start": 16,
+              "end": 39
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 12,
+      "role": "customer",
+      "text_ja": "あ、でも契約書はちゃんと見せてもらえる？",
+      "text_zh": "啊，不过能给我看看合同书吗？",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 13,
+      "role": "agent",
+      "text_ja": "それは後でいいですよ。分配金は利息だから絶対大丈夫、今決めた方が良いです。",
+      "text_zh": "那个回头再看就行。分配金就是利息所以绝对没问题，现在决定比较好。",
+      "compliance_status": "violation",
+      "violations": [
+        {
+          "violation_type": "Type 4",
+          "sub_category": "Skip_Terms",
+          "violation_offsets": [
+            {
+              "fragment": "それは後でいいですよ",
+              "start": 0,
+              "end": 10
+            }
+          ]
+        },
+        {
+          "violation_type": "Type 2",
+          "sub_category": "Misstate_Mechanism",
+          "violation_offsets": [
+            {
+              "fragment": "分配金は利息だから絶対大丈夫",
+              "start": 11,
+              "end": 25
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 14,
+      "role": "customer",
+      "text_ja": "うーん、もう一度考えさせて…",
+      "text_zh": "嗯…让我再考虑一下…",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 15,
+      "role": "agent",
+      "text_ja": "いえ、今月中に加入なら優先枠があるんですが、残り少ないですよ。迷ったら損です。",
+      "text_zh": "不，本月内加入有优先名额，但所剩不多了哦。犹豫的话会吃亏的。",
+      "compliance_status": "violation",
+      "violations": [
+        {
+          "violation_type": "Type 6",
+          "sub_category": "Fabricated_Scarcity",
+          "violation_offsets": [
+            {
+              "fragment": "今月中に加入なら優先枠があるんですが、残り少ないですよ",
+              "start": 3,
+              "end": 30
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

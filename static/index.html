@@ -1,0 +1,1736 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>银行营业合规实时检测系统 Demo</title>
+  <style>
+    /* ============================================================
+       CSS 变量 — 设计令牌
+       ============================================================ */
+    :root {
+      --color-primary:        #1a3c5e;   /* 主品牌深蓝 */
+      --color-primary-light:  #2a5c8e;   /* 交互悬停蓝 */
+      --color-primary-pale:   #e8f0f8;   /* 浅蓝背景 */
+      --color-accent:         #0077cc;   /* 链接/强调蓝 */
+
+      --color-agent-bg:       #dbeafe;   /* 营业员气泡背景 */
+      --color-agent-text:     #1e3a5f;   /* 营业员气泡文字 */
+      --color-customer-bg:    #f1f5f9;   /* 客户气泡背景 */
+      --color-customer-text:  #334155;   /* 客户气泡文字 */
+
+      --color-violation:      #dc2626;   /* 违规红 */
+      --color-violation-bg:   #fef2f2;   /* 违规背景 */
+      --color-violation-border:#fca5a5;  /* 违规边框 */
+      --color-compliant:      #16a34a;   /* 合规绿 */
+      --color-compliant-bg:   #f0fdf4;   /* 合规背景 */
+      --color-compliant-border:#86efac;  /* 合规边框 */
+
+      --color-warning:        #d97706;   /* 警告黄 */
+      --color-warning-bg:     #fffbeb;
+
+      --color-surface:        #ffffff;
+      --color-bg:             #f0f4f8;
+      --color-border:         #cbd5e1;
+      --color-text-primary:   #0f172a;
+      --color-text-secondary: #64748b;
+      --color-text-muted:     #94a3b8;
+
+      --radius-sm:  4px;
+      --radius-md:  8px;
+      --radius-lg:  12px;
+      --radius-xl:  16px;
+
+      --shadow-sm:  0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+      --shadow-md:  0 4px 12px rgba(0,0,0,.10), 0 2px 4px rgba(0,0,0,.06);
+      --shadow-lg:  0 10px 30px rgba(0,0,0,.12), 0 4px 8px rgba(0,0,0,.07);
+
+      --font-body:  'Segoe UI', 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+      --font-mono:  'SFMono-Regular', Consolas, monospace;
+    }
+
+    /* ============================================================
+       重置与基础
+       ============================================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--color-bg);
+      color: var(--color-text-primary);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    /* ============================================================
+       标题栏
+       ============================================================ */
+    .header {
+      background: var(--color-primary);
+      color: #ffffff;
+      padding: 0 24px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(0,0,0,.25);
+      z-index: 10;
+    }
+
+    .header-icon {
+      width: 32px;
+      height: 32px;
+      background: rgba(255,255,255,.15);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .header-title {
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: .03em;
+    }
+
+    .header-subtitle {
+      font-size: 12px;
+      color: rgba(255,255,255,.65);
+      margin-left: 4px;
+    }
+
+    .header-spacer { flex: 1; }
+
+    .header-badge {
+      background: rgba(255,255,255,.15);
+      border: 1px solid rgba(255,255,255,.25);
+      border-radius: 20px;
+      padding: 3px 10px;
+      font-size: 11px;
+      color: rgba(255,255,255,.85);
+      letter-spacing: .04em;
+    }
+
+    /* ============================================================
+       录音控制条
+       ============================================================ */
+    .control-bar {
+      background: var(--color-surface);
+      border-bottom: 1px solid var(--color-border);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-shrink: 0;
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* 按钮通用 */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 18px;
+      border-radius: var(--radius-md);
+      border: none;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: inherit;
+      transition: background .15s, transform .1s, box-shadow .15s;
+      white-space: nowrap;
+      user-select: none;
+    }
+    .btn:active { transform: translateY(1px); }
+    .btn:disabled {
+      opacity: .45;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-start {
+      background: #16a34a;
+      color: #fff;
+      box-shadow: 0 2px 6px rgba(22,163,74,.35);
+    }
+    .btn-start:hover:not(:disabled) {
+      background: #15803d;
+      box-shadow: 0 3px 10px rgba(22,163,74,.45);
+    }
+
+    .btn-stop {
+      background: var(--color-violation);
+      color: #fff;
+      box-shadow: 0 2px 6px rgba(220,38,38,.35);
+    }
+    .btn-stop:hover:not(:disabled) {
+      background: #b91c1c;
+      box-shadow: 0 3px 10px rgba(220,38,38,.45);
+    }
+
+    .btn-reset {
+      background: var(--color-bg);
+      color: var(--color-text-secondary);
+      border: 1px solid var(--color-border);
+    }
+    .btn-reset:hover:not(:disabled) {
+      background: #e2e8f0;
+      color: var(--color-text-primary);
+    }
+
+    /* 录音指示灯 */
+    .rec-indicator {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .rec-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--color-text-muted);
+      transition: background .3s;
+    }
+    .rec-dot.recording {
+      background: var(--color-violation);
+      animation: blink 1s step-end infinite;
+    }
+    .rec-dot.processing { background: var(--color-warning); }
+    .rec-dot.done { background: var(--color-compliant); }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: .2; }
+    }
+
+    /* 计时器 */
+    .timer {
+      font-family: var(--font-mono);
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--color-text-primary);
+      min-width: 52px;
+      letter-spacing: .05em;
+    }
+    .timer.recording { color: var(--color-violation); }
+
+    .control-divider {
+      width: 1px;
+      height: 28px;
+      background: var(--color-border);
+      flex-shrink: 0;
+    }
+
+    /* 语言选择 */
+    .lang-label {
+      font-size: 12px;
+      color: var(--color-text-secondary);
+      white-space: nowrap;
+    }
+    .lang-select {
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      padding: 5px 8px;
+      font-size: 12px;
+      font-family: inherit;
+      color: var(--color-text-primary);
+      background: var(--color-surface);
+      cursor: pointer;
+      outline: none;
+    }
+    .lang-select:focus { border-color: var(--color-accent); }
+
+    /* chunk 进度 */
+    .chunk-info {
+      font-size: 12px;
+      color: var(--color-text-muted);
+      margin-left: auto;
+    }
+
+    /* 状态消息 */
+    .status-msg {
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-weight: 500;
+    }
+    .status-msg.idle    { background: var(--color-bg); color: var(--color-text-muted); }
+    .status-msg.running { background: #dcfce7; color: #15803d; }
+    .status-msg.error   { background: var(--color-violation-bg); color: var(--color-violation); }
+    .status-msg.done    { background: var(--color-compliant-bg); color: var(--color-compliant); }
+
+    /* ============================================================
+       主体内容区（左右分栏）
+       ============================================================ */
+    .main-content {
+      flex: 1;
+      display: flex;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    /* 左侧 — 对话转录 */
+    .transcript-panel {
+      flex: 0 0 60%;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid var(--color-border);
+      background: var(--color-surface);
+      min-height: 0;
+    }
+
+    .panel-header {
+      padding: 12px 20px 10px;
+      border-bottom: 1px solid var(--color-border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+      background: var(--color-primary-pale);
+    }
+
+    .panel-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--color-primary);
+      letter-spacing: .02em;
+    }
+
+    .panel-count {
+      font-size: 11px;
+      background: var(--color-primary);
+      color: #fff;
+      border-radius: 10px;
+      padding: 1px 7px;
+      margin-left: auto;
+    }
+
+    .transcript-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 20px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    /* 空状态提示 */
+    .empty-state {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-text-muted);
+      gap: 10px;
+      text-align: center;
+    }
+    .empty-state-icon { font-size: 40px; opacity: .4; }
+    .empty-state-text { font-size: 13px; line-height: 1.7; }
+
+    /* 对话气泡 */
+    .turn-row {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      animation: fadeSlideIn .25s ease-out;
+    }
+
+    @keyframes fadeSlideIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* 营业员：右对齐 */
+    .turn-row.agent  { flex-direction: row-reverse; }
+
+    /* 角色头像 */
+    .turn-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 2px;
+      box-shadow: var(--shadow-sm);
+    }
+    .turn-row.agent   .turn-avatar { background: var(--color-primary); color: #fff; }
+    .turn-row.customer .turn-avatar { background: #475569; color: #fff; }
+    .turn-row.pending  .turn-avatar { background: #94a3b8; color: #fff; }
+
+    .turn-content { max-width: 75%; display: flex; flex-direction: column; gap: 4px; }
+    .turn-row.agent .turn-content { align-items: flex-end; }
+
+    .turn-meta {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      font-size: 11px;
+      color: var(--color-text-muted);
+    }
+    .turn-row.agent .turn-meta { flex-direction: row-reverse; }
+
+    .turn-role-label {
+      font-weight: 600;
+      font-size: 11px;
+    }
+    .turn-row.agent    .turn-role-label { color: var(--color-primary); }
+    .turn-row.customer .turn-role-label { color: #475569; }
+    .turn-row.pending  .turn-role-label { color: var(--color-text-muted); }
+
+    .turn-num {
+      background: var(--color-bg);
+      border-radius: 4px;
+      padding: 0 5px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--color-text-muted);
+    }
+
+    /* 气泡本体 */
+    .turn-bubble {
+      padding: 10px 14px;
+      border-radius: var(--radius-lg);
+      font-size: 13.5px;
+      line-height: 1.65;
+      word-break: break-word;
+      box-shadow: var(--shadow-sm);
+      position: relative;
+    }
+    .turn-row.agent .turn-bubble {
+      background: var(--color-agent-bg);
+      color: var(--color-agent-text);
+      border-bottom-right-radius: var(--radius-sm);
+      border-top-right-radius: var(--radius-lg);
+    }
+    .turn-row.customer .turn-bubble {
+      background: var(--color-customer-bg);
+      color: var(--color-customer-text);
+      border-bottom-left-radius: var(--radius-sm);
+    }
+    .turn-row.pending .turn-bubble {
+      background: #f8fafc;
+      color: var(--color-text-muted);
+      border: 1px dashed var(--color-border);
+      font-style: italic;
+    }
+
+    /* 气泡违规标记 */
+    .turn-bubble.has-violation {
+      border: 1.5px solid var(--color-violation-border);
+      background: #fff5f5;
+    }
+    .turn-bubble.has-violation::after {
+      content: '⚠';
+      position: absolute;
+      top: -8px;
+      right: -6px;
+      font-size: 13px;
+      line-height: 1;
+    }
+
+    /* ============================================================
+       右侧 — 合规提醒
+       ============================================================ */
+    .compliance-panel {
+      flex: 0 0 40%;
+      display: flex;
+      flex-direction: column;
+      background: var(--color-surface);
+      min-height: 0;
+    }
+
+    .compliance-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* 合规卡片 — 违规 */
+    .alert-card {
+      border-radius: var(--radius-md);
+      border: 1px solid;
+      padding: 12px 14px;
+      animation: fadeSlideIn .25s ease-out;
+    }
+
+    .alert-card.violation {
+      background: var(--color-violation-bg);
+      border-color: var(--color-violation-border);
+    }
+    .alert-card.compliant {
+      background: var(--color-compliant-bg);
+      border-color: var(--color-compliant-border);
+    }
+
+    .alert-card-header {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 6px;
+    }
+
+    .alert-icon { font-size: 15px; flex-shrink: 0; }
+
+    .alert-title {
+      font-size: 12.5px;
+      font-weight: 700;
+    }
+    .alert-card.violation .alert-title { color: var(--color-violation); }
+    .alert-card.compliant .alert-title { color: var(--color-compliant); }
+
+    .alert-turn-badge {
+      font-size: 10px;
+      border-radius: 4px;
+      padding: 1px 6px;
+      font-family: var(--font-mono);
+      font-weight: 600;
+      margin-left: auto;
+    }
+    .alert-card.violation .alert-turn-badge {
+      background: #fee2e2;
+      color: var(--color-violation);
+    }
+    .alert-card.compliant .alert-turn-badge {
+      background: #dcfce7;
+      color: var(--color-compliant);
+    }
+
+    /* 违规详情列表 */
+    .violation-list { display: flex; flex-direction: column; gap: 6px; }
+
+    .violation-item {
+      font-size: 12px;
+      color: var(--color-text-primary);
+      padding: 6px 10px;
+      background: rgba(220,38,38,.05);
+      border-radius: var(--radius-sm);
+      border-left: 3px solid var(--color-violation);
+    }
+
+    .violation-type {
+      font-weight: 700;
+      color: var(--color-violation);
+      font-size: 11px;
+      margin-bottom: 2px;
+    }
+
+    .violation-sub {
+      color: var(--color-text-secondary);
+      font-size: 11px;
+      margin-bottom: 3px;
+    }
+
+    .violation-fragment {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      background: #fff;
+      border: 1px solid var(--color-violation-border);
+      border-radius: 3px;
+      padding: 2px 6px;
+      color: #7f1d1d;
+      display: inline-block;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* 统计小标题 */
+    .compliance-stats {
+      display: flex;
+      gap: 8px;
+      padding: 10px 16px;
+      border-top: 1px solid var(--color-border);
+      flex-shrink: 0;
+      background: var(--color-bg);
+    }
+
+    .stat-chip {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11.5px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-weight: 600;
+    }
+    .stat-chip.violations {
+      background: var(--color-violation-bg);
+      color: var(--color-violation);
+    }
+    .stat-chip.compliant {
+      background: var(--color-compliant-bg);
+      color: var(--color-compliant);
+    }
+
+    /* ============================================================
+       评分报告区（底部）
+       ============================================================ */
+    .report-section {
+      border-top: 1px solid var(--color-border);
+      background: var(--color-surface);
+      flex-shrink: 0;
+      display: none;  /* 会话结束后显示 */
+    }
+    .report-section.visible { display: block; }
+
+    .report-header {
+      background: var(--color-primary);
+      color: #fff;
+      padding: 10px 24px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .report-header-title {
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .report-total-score {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .report-score-value {
+      font-size: 28px;
+      font-weight: 800;
+      font-family: var(--font-mono);
+    }
+
+    .report-score-label {
+      font-size: 12px;
+      color: rgba(255,255,255,.65);
+    }
+
+    .report-body {
+      padding: 20px 24px;
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    /* 四维度分数卡 */
+    .scores-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      flex: 1 1 500px;
+      min-width: 0;
+    }
+
+    .score-card {
+      background: var(--color-bg);
+      border-radius: var(--radius-md);
+      padding: 14px 14px 12px;
+      border: 1px solid var(--color-border);
+      transition: box-shadow .2s;
+    }
+    .score-card:hover { box-shadow: var(--shadow-md); }
+
+    .score-card-label {
+      font-size: 11px;
+      color: var(--color-text-secondary);
+      font-weight: 600;
+      margin-bottom: 6px;
+      letter-spacing: .02em;
+    }
+
+    .score-card-value {
+      font-size: 26px;
+      font-weight: 800;
+      font-family: var(--font-mono);
+      margin-bottom: 7px;
+      line-height: 1;
+    }
+
+    /* 进度条 */
+    .score-bar-track {
+      height: 6px;
+      background: #e2e8f0;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .score-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width .6s cubic-bezier(.25,.46,.45,.94);
+    }
+
+    .score-card-comment {
+      font-size: 11px;
+      color: var(--color-text-muted);
+      margin-top: 7px;
+      line-height: 1.5;
+    }
+
+    /* 颜色等级 */
+    .score-excellent { color: #16a34a; }
+    .score-good      { color: #0077cc; }
+    .score-average   { color: var(--color-warning); }
+    .score-poor      { color: var(--color-violation); }
+
+    .bar-excellent { background: #16a34a; }
+    .bar-good      { background: #0077cc; }
+    .bar-average   { background: var(--color-warning); }
+    .bar-poor      { background: var(--color-violation); }
+
+    /* 摘要 + 建议 */
+    .report-text-section {
+      flex: 0 0 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .report-text-block {
+      background: var(--color-bg);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      border: 1px solid var(--color-border);
+    }
+
+    .report-text-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--color-text-secondary);
+      letter-spacing: .03em;
+      margin-bottom: 8px;
+      padding-bottom: 7px;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .report-text-content {
+      font-size: 13px;
+      color: var(--color-text-primary);
+      line-height: 1.7;
+    }
+
+    /* ============================================================
+       错误提示 Toast
+       ============================================================ */
+    .toast-container {
+      position: fixed;
+      top: 70px;
+      right: 20px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      pointer-events: none;
+    }
+
+    .toast {
+      background: var(--color-surface);
+      border-radius: var(--radius-md);
+      padding: 12px 16px;
+      box-shadow: var(--shadow-lg);
+      font-size: 13px;
+      max-width: 340px;
+      pointer-events: all;
+      animation: toastIn .2s ease-out;
+      border-left: 4px solid var(--color-accent);
+    }
+    .toast.error   { border-color: var(--color-violation); }
+    .toast.success { border-color: var(--color-compliant); }
+    .toast.warning { border-color: var(--color-warning); }
+
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateX(20px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    /* ============================================================
+       分析加载中遮罩
+       ============================================================ */
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15,23,42,.5);
+      z-index: 9998;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .loading-overlay.visible { display: flex; }
+
+    .loading-spinner {
+      width: 48px;
+      height: 48px;
+      border: 4px solid rgba(255,255,255,.2);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
+
+    .loading-text {
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ============================================================
+       滚动条美化
+       ============================================================ */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb {
+      background: var(--color-border);
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover { background: var(--color-text-muted); }
+
+    /* ============================================================
+       响应式适配（最小宽度 860px 保证三区域可视）
+       ============================================================ */
+    @media (max-width: 900px) {
+      .scores-grid { grid-template-columns: repeat(2, 1fr); }
+      .report-text-section { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 680px) {
+      .main-content { flex-direction: column; }
+      .transcript-panel { flex: none; height: 50vh; border-right: none; border-bottom: 1px solid var(--color-border); }
+      .compliance-panel { flex: none; height: 40vh; }
+      .scores-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== 标题栏 ===== -->
+  <header class="header">
+    <div class="header-icon">🏦</div>
+    <div>
+      <div class="header-title">銀行営業コンプライアンス リアルタイム検知システム</div>
+      <div class="header-subtitle">银行营业合规实时检测系统 Demo</div>
+    </div>
+    <div class="header-spacer"></div>
+    <div class="header-badge">Phase 1 PoC</div>
+  </header>
+
+  <!-- ===== 录音控制条 ===== -->
+  <div class="control-bar">
+    <!-- 开始录音 -->
+    <button id="btnStart" class="btn btn-start" onclick="handleStart()">
+      <span>●</span> 開始録音
+    </button>
+
+    <!-- 停止并分析 -->
+    <button id="btnStop" class="btn btn-stop" onclick="handleStop()" disabled>
+      <span>■</span> 停止・分析
+    </button>
+
+    <!-- 重置 -->
+    <button id="btnReset" class="btn btn-reset" onclick="handleReset()" disabled>
+      ↺ リセット
+    </button>
+
+    <div class="control-divider"></div>
+
+    <!-- 录音指示灯 + 计时器 -->
+    <div class="rec-indicator">
+      <div id="recDot" class="rec-dot"></div>
+      <span id="recLabel" style="font-size:12px;color:var(--color-text-muted)">待機中</span>
+    </div>
+    <div id="timer" class="timer">00:00</div>
+
+    <div class="control-divider"></div>
+
+    <!-- 语言选择 -->
+    <span class="lang-label">言語：</span>
+    <select id="langSelect" class="lang-select">
+      <option value="ja-JP">日本語</option>
+      <option value="zh-CN">中文（普通话）</option>
+      <option value="en-US">English</option>
+    </select>
+
+    <!-- chunk 进度 -->
+    <div id="chunkInfo" class="chunk-info"></div>
+
+    <!-- 状态消息 -->
+    <div id="statusMsg" class="status-msg idle">待機中</div>
+  </div>
+
+  <!-- ===== 主体：左侧转录 + 右侧合规 ===== -->
+  <div class="main-content">
+
+    <!-- 左侧：对话转录 -->
+    <div class="transcript-panel">
+      <div class="panel-header">
+        <span class="panel-title">💬 対話転写</span>
+        <span id="turnCount" class="panel-count">0 ターン</span>
+      </div>
+      <div id="transcriptBody" class="transcript-body">
+        <!-- 空状态 -->
+        <div id="transcriptEmpty" class="empty-state">
+          <div class="empty-state-icon">🎙️</div>
+          <div class="empty-state-text">
+            録音を開始すると、リアルタイムで<br>会話が表示されます。<br>
+            <small style="color:var(--color-text-muted)">5秒ごとに音声チャンクを送信します</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 右侧：合规提醒 -->
+    <div class="compliance-panel">
+      <div class="panel-header">
+        <span class="panel-title">🛡️ コンプライアンス検知</span>
+        <span id="violationCount" class="panel-count" style="background:#dc2626">0 件違反</span>
+      </div>
+      <div id="complianceBody" class="compliance-body">
+        <!-- 空状态 -->
+        <div id="complianceEmpty" class="empty-state">
+          <div class="empty-state-icon">✅</div>
+          <div class="empty-state-text">
+            コンプライアンス検知結果が<br>ここに表示されます。<br>
+            <small style="color:var(--color-text-muted)">L1 禁止用語 + L2 Claude Haiku による検知</small>
+          </div>
+        </div>
+      </div>
+      <!-- 底部统计 -->
+      <div class="compliance-stats" id="complianceStats" style="display:none">
+        <div class="stat-chip violations" id="statViolations">⚠ 0 件违规</div>
+        <div class="stat-chip compliant" id="statCompliant">✓ 0 件合规</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ===== 底部评分报告（会话结束后展示） ===== -->
+  <div class="report-section" id="reportSection">
+    <div class="report-header">
+      <span>📊</span>
+      <div class="report-header-title">セッション評価レポート</div>
+      <div class="report-total-score">
+        <div>
+          <div class="report-score-label">総合スコア</div>
+          <div id="reportTotalScore" class="report-score-value">—</div>
+        </div>
+        <div style="font-size:16px;color:rgba(255,255,255,.5)">/100</div>
+      </div>
+    </div>
+    <div class="report-body">
+      <!-- 四维度分数 -->
+      <div class="scores-grid" id="scoresGrid">
+        <!-- 动态填充 -->
+      </div>
+      <!-- 摘要与建议 -->
+      <div class="report-text-section">
+        <div class="report-text-block">
+          <div class="report-text-title">📝 セッション概要</div>
+          <div id="reportSummary" class="report-text-content">—</div>
+        </div>
+        <div class="report-text-block">
+          <div class="report-text-title">💡 改善フィードバック</div>
+          <div id="reportFeedback" class="report-text-content">—</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Toast 容器 ===== -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- ===== 加载遮罩 ===== -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-spinner"></div>
+    <div class="loading-text" id="loadingText">セッション分析中...</div>
+  </div>
+
+  <script>
+    // ==============================================================
+    // PCM → WAV 编码器（浏览器端，无需任何依赖）
+    // 输入：Float32Array（-1~1 范围的 PCM 样本）+ 采样率
+    // 输出：audio/wav Blob（16bit PCM，单声道）
+    // ==============================================================
+    function encodePCMtoWAV(float32Array, sampleRate) {
+      const numChannels  = 1;
+      const bitsPerSample = 16;
+      const bytesPerSample = bitsPerSample / 8;
+      const blockAlign   = numChannels * bytesPerSample;
+      const byteRate     = sampleRate * blockAlign;
+      const dataLength   = float32Array.length * bytesPerSample;
+      const buffer       = new ArrayBuffer(44 + dataLength);
+      const view         = new DataView(buffer);
+
+      function writeStr(off, str) {
+        for (let i = 0; i < str.length; i++) view.setUint8(off + i, str.charCodeAt(i));
+      }
+
+      // RIFF / WAVE 头部
+      writeStr(0, 'RIFF');
+      view.setUint32(4,  36 + dataLength, true);
+      writeStr(8, 'WAVE');
+
+      // fmt 子块
+      writeStr(12, 'fmt ');
+      view.setUint32(16, 16, true);            // 子块大小
+      view.setUint16(20, 1,  true);            // PCM = 1
+      view.setUint16(22, numChannels, true);
+      view.setUint32(24, sampleRate, true);
+      view.setUint32(28, byteRate, true);
+      view.setUint16(32, blockAlign, true);
+      view.setUint16(34, bitsPerSample, true);
+
+      // data 子块
+      writeStr(36, 'data');
+      view.setUint32(40, dataLength, true);
+
+      // 样本：Float32 → Int16
+      let offset = 44;
+      for (let i = 0; i < float32Array.length; i++) {
+        const s = Math.max(-1, Math.min(1, float32Array[i]));
+        view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+        offset += 2;
+      }
+
+      return new Blob([buffer], { type: 'audio/wav' });
+    }
+
+    // ==============================================================
+    // 状态管理
+    // ==============================================================
+    const state = {
+      sessionId:    null,        // 当前会话 ID
+      isRecording:  false,       // 是否录音中
+      chunkIndex:   0,           // 已发送的切片序号
+      timerSeconds: 0,           // 录音秒数
+      timerHandle:  null,        // setInterval 句柄
+      audioContext:  null,        // Web Audio API context（16kHz）
+      processor:     null,        // ScriptProcessorNode
+      audioStream:   null,        // 麦克风流
+      pcmBuffer:     new Float32Array(0),  // 当前 chunk 的 PCM 样本（Float32Array）
+      chunkTimer:    null,        // 5s 切片定时器
+      turns:        {},          // turn 编号 → 气泡元素
+      violationTurns: new Set(), // 有违规的 turn 集合
+      totalCompliant:   0,       // 合规 turn 数
+      totalViolations:  0,       // 违规 turn 数
+    };
+
+    // ==============================================================
+    // DOM 引用
+    // ==============================================================
+    const elBtnStart      = document.getElementById('btnStart');
+    const elBtnStop       = document.getElementById('btnStop');
+    const elBtnReset      = document.getElementById('btnReset');
+    const elTimer         = document.getElementById('timer');
+    const elRecDot        = document.getElementById('recDot');
+    const elRecLabel      = document.getElementById('recLabel');
+    const elStatusMsg     = document.getElementById('statusMsg');
+    const elChunkInfo     = document.getElementById('chunkInfo');
+    const elTranscript    = document.getElementById('transcriptBody');
+    const elTransEmpty    = document.getElementById('transcriptEmpty');
+    const elCompliance    = document.getElementById('complianceBody');
+    const elCompEmpty     = document.getElementById('complianceEmpty');
+    const elTurnCount     = document.getElementById('turnCount');
+    const elViolCount     = document.getElementById('violationCount');
+    const elCompStats     = document.getElementById('complianceStats');
+    const elStatViol      = document.getElementById('statViolations');
+    const elStatComp      = document.getElementById('statCompliant');
+    const elReportSection = document.getElementById('reportSection');
+    const elLoadingOverlay= document.getElementById('loadingOverlay');
+    const elLoadingText   = document.getElementById('loadingText');
+    const elLangSelect    = document.getElementById('langSelect');
+
+    // ==============================================================
+    // 计时器
+    // ==============================================================
+    function startTimer() {
+      state.timerSeconds = 0;
+      updateTimerDisplay();
+      state.timerHandle = setInterval(() => {
+        state.timerSeconds++;
+        updateTimerDisplay();
+      }, 1000);
+    }
+
+    function stopTimer() {
+      if (state.timerHandle) {
+        clearInterval(state.timerHandle);
+        state.timerHandle = null;
+      }
+    }
+
+    function updateTimerDisplay() {
+      const m = String(Math.floor(state.timerSeconds / 60)).padStart(2, '0');
+      const s = String(state.timerSeconds % 60).padStart(2, '0');
+      elTimer.textContent = `${m}:${s}`;
+    }
+
+    // ==============================================================
+    // 状态 UI 更新
+    // ==============================================================
+    function setRecordingState(recording) {
+      state.isRecording = recording;
+      if (recording) {
+        elRecDot.className  = 'rec-dot recording';
+        elRecLabel.textContent = '録音中';
+        elRecLabel.style.color = 'var(--color-violation)';
+        elTimer.className   = 'timer recording';
+        elBtnStart.disabled = true;
+        elBtnStop.disabled  = false;
+        elBtnReset.disabled = true;
+        elLangSelect.disabled = true;
+        setStatus('running', '録音中');
+      } else {
+        elRecDot.className  = 'rec-dot';
+        elRecLabel.textContent = '停止';
+        elRecLabel.style.color = 'var(--color-text-muted)';
+        elTimer.className   = 'timer';
+        elBtnStart.disabled = true;
+        elBtnStop.disabled  = true;
+        elBtnReset.disabled = false;
+        elLangSelect.disabled = false;
+      }
+    }
+
+    function setStatus(type, text) {
+      elStatusMsg.className = `status-msg ${type}`;
+      elStatusMsg.textContent = text;
+    }
+
+    // ==============================================================
+    // Toast 通知
+    // ==============================================================
+    function showToast(message, type = 'info', duration = 4000) {
+      const el = document.createElement('div');
+      el.className = `toast ${type}`;
+      el.textContent = message;
+      document.getElementById('toastContainer').appendChild(el);
+      setTimeout(() => {
+        el.style.opacity = '0';
+        el.style.transition = 'opacity .3s';
+        setTimeout(() => el.remove(), 300);
+      }, duration);
+    }
+
+    // ==============================================================
+    // 加载遮罩
+    // ==============================================================
+    function showLoading(text = '処理中...') {
+      elLoadingText.textContent = text;
+      elLoadingOverlay.classList.add('visible');
+    }
+
+    function hideLoading() {
+      elLoadingOverlay.classList.remove('visible');
+    }
+
+    // ==============================================================
+    // 渲染：对话气泡
+    // ==============================================================
+    function renderTurns(newTurns) {
+      if (!newTurns || !newTurns.length) return;
+
+      // 隐藏空状态
+      if (elTransEmpty.style.display !== 'none') {
+        elTransEmpty.style.display = 'none';
+      }
+
+      newTurns.forEach(turn => {
+        const { turn: turnNum, role, text_ja } = turn;
+
+        // 若已存在相同 turn，更新 role 和文本（finish 调用时 role 已确定）
+        if (state.turns[turnNum]) {
+          const existing = state.turns[turnNum];
+          if (role && role !== 'pending') {
+            existing.className = `turn-row ${role}`;
+            const avatar = existing.querySelector('.turn-avatar');
+            if (avatar) avatar.textContent = roleAvatarChar(role);
+            const roleLabel = existing.querySelector('.turn-role-label');
+            if (roleLabel) roleLabel.textContent = roleName(role);
+            const bubble = existing.querySelector('.turn-bubble');
+            if (bubble) bubble.textContent = text_ja || '';
+          }
+          return;
+        }
+
+        // 新建气泡行
+        const row = document.createElement('div');
+        row.className = `turn-row ${role}`;
+        row.dataset.turn = turnNum;
+
+        row.innerHTML = `
+          <div class="turn-avatar">${roleAvatarChar(role)}</div>
+          <div class="turn-content">
+            <div class="turn-meta">
+              <span class="turn-role-label">${roleName(role)}</span>
+              <span class="turn-num">T${turnNum}</span>
+            </div>
+            <div class="turn-bubble">${escapeHtml(text_ja || '（転写中...）')}</div>
+          </div>
+        `;
+
+        state.turns[turnNum] = row;
+        elTranscript.appendChild(row);
+
+        // 自动滚动到底部
+        elTranscript.scrollTop = elTranscript.scrollHeight;
+      });
+
+      // 更新 turn 计数
+      const count = Object.keys(state.turns).length;
+      elTurnCount.textContent = `${count} ターン`;
+    }
+
+    function roleAvatarChar(role) {
+      if (role === 'agent') return '営';
+      if (role === 'customer') return '客';
+      return '?';
+    }
+
+    function roleName(role) {
+      if (role === 'agent') return '営業員';
+      if (role === 'customer') return 'お客様';
+      return '確認中';
+    }
+
+    function escapeHtml(str) {
+      return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    // ==============================================================
+    // 渲染：合规检测结果
+    // ==============================================================
+    function renderCompliance(complianceList) {
+      if (!complianceList || !complianceList.length) return;
+
+      if (elCompEmpty.style.display !== 'none') {
+        elCompEmpty.style.display = 'none';
+        elCompStats.style.display = 'flex';
+      }
+
+      let hasNewViolation = false;
+
+      complianceList.forEach(item => {
+        const { turn, compliance_status, violations } = item;
+        const isViolation = compliance_status === 'violation';
+
+        // 更新统计（避免重复计数同一 turn）
+        if (isViolation && !state.violationTurns.has(turn)) {
+          state.totalViolations++;
+          state.violationTurns.add(turn);
+          hasNewViolation = true;
+          // 给对应气泡添加违规标记
+          if (state.turns[turn]) {
+            const bubble = state.turns[turn].querySelector('.turn-bubble');
+            if (bubble) bubble.classList.add('has-violation');
+          }
+        } else if (!isViolation && !state.violationTurns.has(turn)) {
+          state.totalCompliant++;
+        }
+
+        // 只渲染违规卡片，合规 turn 仅更新计数，不占用面板空间
+        if (!isViolation) return;
+
+        // 检查是否已经渲染过该 turn 的违规卡片
+        if (document.querySelector(`.alert-card[data-turn="${turn}"]`)) return;
+
+        const card = document.createElement('div');
+        card.className = 'alert-card violation';
+        card.dataset.turn = turn;
+
+        let violationsHtml = '';
+        if (violations && violations.length) {
+          violationsHtml = `<div class="violation-list">` +
+            violations.map(v => `
+              <div class="violation-item">
+                <div class="violation-type">${escapeHtml(v.violation_type || '不明な違反')}</div>
+                ${v.sub_category ? `<div class="violation-sub">${escapeHtml(v.sub_category)}</div>` : ''}
+                ${(v.violation_offsets || []).length
+                  ? `<div class="violation-fragment">"${escapeHtml(
+                      v.violation_offsets.map(o => o.fragment || o).join(' / ')
+                    )}"</div>`
+                  : ''}
+              </div>
+            `).join('') +
+          `</div>`;
+        }
+
+        card.innerHTML = `
+          <div class="alert-card-header">
+            <span class="alert-icon">⚠️</span>
+            <span class="alert-title">違反検知</span>
+            <span class="alert-turn-badge">Turn ${turn}</span>
+          </div>
+          ${violationsHtml}
+        `;
+
+        elCompliance.appendChild(card);
+        elCompliance.scrollTop = elCompliance.scrollHeight;
+      });
+
+      // 更新统计标签
+      elStatViol.textContent = `⚠ ${state.totalViolations} 件违规`;
+      elStatComp.textContent = `✓ ${state.totalCompliant} 件合规`;
+      elViolCount.textContent = `${state.totalViolations} 件違反`;
+
+      // 无违规时显示一次性 toast 提示，不污染面板
+      if (!hasNewViolation && complianceList.length > 0) {
+        const maxTurn = Math.max(...complianceList.map(c => c.turn));
+        showToast(`Turn ${maxTurn} まで検査完了：違反なし`, 'success', 2500);
+        // 若面板完全空（无任何违规卡片），恢复空状态提示
+        if (!elCompliance.querySelector('.alert-card.violation')) {
+          elCompEmpty.style.display = 'flex';
+          elCompStats.style.display = 'none';
+        }
+      }
+    }
+
+    // ==============================================================
+    // 渲染：评分报告
+    // ==============================================================
+    function renderReport(data) {
+      const { evaluation, compliance_summary } = data;
+      if (!evaluation) return;
+
+      const totalScore = evaluation.total_score || 0;
+      document.getElementById('reportTotalScore').textContent = totalScore;
+
+      // 四维度映射
+      const dimensionMap = {
+        preparation:        '準備',
+        opinion_gathering:  '意見聴取',
+        proposal_accuracy:  '提案精度',
+        compliance:         'コンプライアンス',
+      };
+
+      const scoresGrid = document.getElementById('scoresGrid');
+      scoresGrid.innerHTML = '';
+
+      if (evaluation.scores) {
+        Object.entries(dimensionMap).forEach(([key, label]) => {
+          const dim = evaluation.scores[key];
+          if (!dim) return;
+          const score = dim.score || 0;
+          const colorClass = scoreColorClass(score);
+          const barClass   = scoreBarClass(score);
+
+          const card = document.createElement('div');
+          card.className = 'score-card';
+          card.innerHTML = `
+            <div class="score-card-label">${label}</div>
+            <div class="score-card-value ${colorClass}">${score}</div>
+            <div class="score-bar-track">
+              <div class="score-bar-fill ${barClass}" style="width:0%" data-target="${score}"></div>
+            </div>
+            <div class="score-card-comment">${escapeHtml(dim.comment || '')}</div>
+          `;
+          scoresGrid.appendChild(card);
+        });
+
+        // 动画进度条（延迟启动）
+        requestAnimationFrame(() => {
+          document.querySelectorAll('.score-bar-fill').forEach(bar => {
+            bar.style.width = bar.dataset.target + '%';
+          });
+        });
+      }
+
+      // 摘要 + 建议
+      document.getElementById('reportSummary').textContent  = evaluation.summary || '—';
+      document.getElementById('reportFeedback').textContent = evaluation.overall_feedback || '—';
+
+      // 显示报告区
+      elReportSection.classList.add('visible');
+      elReportSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function scoreColorClass(score) {
+      if (score >= 90) return 'score-excellent';
+      if (score >= 70) return 'score-good';
+      if (score >= 50) return 'score-average';
+      return 'score-poor';
+    }
+
+    function scoreBarClass(score) {
+      if (score >= 90) return 'bar-excellent';
+      if (score >= 70) return 'bar-good';
+      if (score >= 50) return 'bar-average';
+      return 'bar-poor';
+    }
+
+    // ==============================================================
+    // API 调用：开始会话
+    // ==============================================================
+    async function apiSessionStart(lang) {
+      const resp = await fetch('/api/session/start', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lang, speakers: 2 }),
+      });
+      if (!resp.ok) throw new Error(`session/start 失败: HTTP ${resp.status}`);
+      return resp.json();
+    }
+
+    // ==============================================================
+    // API 调用：提交音频切片
+    // ==============================================================
+    async function apiSendChunk(sessionId, audioBlob, chunkIndex) {
+      const form = new FormData();
+      form.append('audio', audioBlob, 'chunk.wav');
+      form.append('chunk_index', String(chunkIndex));
+
+      const resp = await fetch(`/api/session/${sessionId}/chunk`, {
+        method: 'POST',
+        body: form,
+      });
+      if (!resp.ok) {
+        const text = await resp.text();
+        throw new Error(`chunk 提交失败: HTTP ${resp.status} — ${text}`);
+      }
+      return resp.json();
+    }
+
+    // ==============================================================
+    // API 调用：结束会话
+    // ==============================================================
+    async function apiSessionFinish(sessionId) {
+      const resp = await fetch(`/api/session/${sessionId}/finish`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      if (!resp.ok) {
+        const text = await resp.text();
+        throw new Error(`session/finish 失败: HTTP ${resp.status} — ${text}`);
+      }
+      return resp.json();
+    }
+
+    // ==============================================================
+    // 核心逻辑：开始录音
+    // ==============================================================
+    async function handleStart() {
+      try {
+        setStatus('running', '初期化中...');
+
+        // 1. 请求麦克风权限
+        let stream;
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({
+            audio: {
+              channelCount: 1,
+              sampleRate: 16000,
+              echoCancellation: true,
+              noiseSuppression: true,
+            }
+          });
+        } catch (e) {
+          showToast(`マイクへのアクセスが拒否されました: ${e.message}`, 'error');
+          setStatus('error', 'マイクエラー');
+          return;
+        }
+
+        state.audioStream = stream;
+
+        // 2. 创建后端会话
+        const lang = elLangSelect.value;
+        let sessionData;
+        try {
+          sessionData = await apiSessionStart(lang);
+        } catch (e) {
+          showToast(`セッション開始失敗: ${e.message}`, 'error');
+          setStatus('error', 'API エラー');
+          stream.getTracks().forEach(t => t.stop());
+          return;
+        }
+        state.sessionId   = sessionData.session_id;
+        state.chunkIndex  = 0;
+
+        showToast(`セッション開始: ${state.sessionId}`, 'success');
+
+        // 3. 用 Web Audio API 捕获 PCM（直接输出 16kHz 单声道，无需格式转换）
+        const SAMPLE_RATE   = 16000;
+        const CHUNK_MS      = 5000;   // 每 5 秒发送一次
+        const BUFFER_SIZE   = 4096;   // ScriptProcessorNode 缓冲区
+
+        const audioCtx = new AudioContext({ sampleRate: SAMPLE_RATE });
+        state.audioContext = audioCtx;
+        state.pcmBuffer    = new Float32Array(0);
+
+        // Chrome 会将 AudioContext 置于 suspended 状态，必须显式 resume
+        if (audioCtx.state === 'suspended') {
+          await audioCtx.resume();
+        }
+        console.log('[Audio] AudioContext state:', audioCtx.state, '| sampleRate:', audioCtx.sampleRate);
+
+        // 麦克风 → ScriptProcessorNode（收集原始 PCM 样本）
+        const source    = audioCtx.createMediaStreamSource(stream);
+        const processor = audioCtx.createScriptProcessor(BUFFER_SIZE, 1, 1);
+        state.processor = processor;
+
+        processor.onaudioprocess = (e) => {
+          if (!state.isRecording) return;
+          // 复制本次缓冲区的样本（Float32，范围 -1~1）
+          // 使用 typed array 拼接，避免 spread 运算符在大数组上栈溢出
+          const samples = e.inputBuffer.getChannelData(0);
+          const prev = state.pcmBuffer;
+          const next = new Float32Array(prev.length + samples.length);
+          next.set(prev);
+          next.set(samples, prev.length);
+          state.pcmBuffer = next;
+        };
+
+        source.connect(processor);
+        processor.connect(audioCtx.destination);
+
+        // 辅助：将积累的 PCM 样本封装为 WAV Blob
+        function flushToWAV() {
+          if (!state.pcmBuffer || state.pcmBuffer.length === 0) return null;
+          const wav = encodePCMtoWAV(
+            state.pcmBuffer instanceof Float32Array
+              ? state.pcmBuffer
+              : new Float32Array(state.pcmBuffer),
+            SAMPLE_RATE
+          );
+          state.pcmBuffer = new Float32Array(0);
+          return wav;
+        }
+
+        // 辅助：发送一个 chunk
+        async function sendCurrentChunk() {
+          const wav = flushToWAV();
+          if (!wav) return;
+
+          const idx = state.chunkIndex;
+          state.chunkIndex++;
+          elChunkInfo.textContent = `Chunk #${idx} 送信中...`;
+
+          try {
+            const result = await apiSendChunk(state.sessionId, wav, idx);
+            elChunkInfo.textContent = `Chunk #${result.chunk_index ?? idx} 完了`;
+            if (result.new_turns && result.new_turns.length) renderTurns(result.new_turns);
+            if (result.compliance) renderCompliance(result.compliance);
+          } catch (err) {
+            console.error('chunk 提交失败:', err);
+            showToast(`Chunk #${idx} 送信失敗: ${err.message}`, 'warning', 3000);
+          }
+        }
+
+        // 4. 每 5 秒触发一次切片发送
+        state.chunkTimer = setInterval(sendCurrentChunk, CHUNK_MS);
+        setRecordingState(true);
+        startTimer();
+        setStatus('running', '録音中');
+
+      } catch (err) {
+        console.error('handleStart error:', err);
+        showToast(`予期しないエラー: ${err.message}`, 'error');
+        setStatus('error', 'エラー');
+      }
+    }
+
+    // ==============================================================
+    // 核心逻辑：停止并分析
+    // ==============================================================
+    async function handleStop() {
+      if (!state.isRecording) return;
+
+      // 停止录音
+      setRecordingState(false);
+      stopTimer();
+
+      try {
+        // 停止定时切片
+        if (state.chunkTimer) {
+          clearInterval(state.chunkTimer);
+          state.chunkTimer = null;
+        }
+
+        // 发送剩余未满 5s 的 PCM 数据
+        if (state.pcmBuffer && state.pcmBuffer.length > 0 && state.sessionId) {
+          const wav = encodePCMtoWAV(
+            state.pcmBuffer instanceof Float32Array
+              ? state.pcmBuffer
+              : new Float32Array(state.pcmBuffer),
+            16000
+          );
+          state.pcmBuffer = new Float32Array(0);
+          const idx = state.chunkIndex++;
+          try {
+            const result = await apiSendChunk(state.sessionId, wav, idx);
+            if (result.new_turns && result.new_turns.length) renderTurns(result.new_turns);
+          } catch (e) { /* 忽略最后一包失败 */ }
+        }
+
+        // 断开 Web Audio 节点
+        if (state.processor) {
+          state.processor.disconnect();
+          state.processor = null;
+        }
+        if (state.audioContext) {
+          await state.audioContext.close();
+          state.audioContext = null;
+        }
+
+        // 释放麦克风
+        if (state.audioStream) {
+          state.audioStream.getTracks().forEach(t => t.stop());
+          state.audioStream = null;
+        }
+
+        // 等待网络请求完成
+        await new Promise(r => setTimeout(r, 800));
+
+        // 调用 finish
+        showLoading('セッション分析中...');
+        setStatus('running', '分析中');
+        elRecDot.className = 'rec-dot processing';
+        elRecLabel.textContent = '分析中';
+
+        let finishData;
+        try {
+          finishData = await apiSessionFinish(state.sessionId);
+        } catch (e) {
+          hideLoading();
+          showToast(`評価レポート取得失敗: ${e.message}`, 'error');
+          setStatus('error', '分析失敗');
+          return;
+        }
+
+        hideLoading();
+        elRecDot.className = 'rec-dot done';
+        elRecLabel.textContent = '完了';
+        setStatus('done', '分析完了');
+
+        // 渲染最终转写（finish 返回完整 transcript）
+        if (finishData.transcript && finishData.transcript.length) {
+          // 如果有新增的 turns，合并渲染
+          renderTurns(finishData.transcript);
+        }
+
+        // 渲染合规摘要中的违规详情（finish 返回汇总）
+        if (finishData.compliance_summary && finishData.compliance_summary.violations) {
+          renderCompliance(finishData.compliance_summary.violations);
+        }
+
+        // 渲染评分报告
+        renderReport(finishData);
+
+        showToast('評価レポートが生成されました', 'success', 5000);
+        elChunkInfo.textContent = `計 ${state.chunkIndex} チャンク送信済`;
+
+      } catch (err) {
+        hideLoading();
+        console.error('handleStop error:', err);
+        showToast(`停止処理エラー: ${err.message}`, 'error');
+        setStatus('error', 'エラー');
+      }
+    }
+
+    // ==============================================================
+    // 重置
+    // ==============================================================
+    function handleReset() {
+      // 停止所有活跃录音（防御性处理）
+      if (state.mediaRecorder && state.mediaRecorder.state !== 'inactive') {
+        state.mediaRecorder.stop();
+      }
+      if (state.audioStream) {
+        state.audioStream.getTracks().forEach(t => t.stop());
+        state.audioStream = null;
+      }
+      stopTimer();
+
+      // 重置状态
+      Object.assign(state, {
+        sessionId: null,
+        isRecording: false,
+        chunkIndex: 0,
+        timerSeconds: 0,
+        mediaRecorder: null,
+        audioStream: null,
+        turns: {},
+        violationTurns: new Set(),
+        totalCompliant: 0,
+        totalViolations: 0,
+      });
+
+      // 重置 UI
+      updateTimerDisplay();
+      elRecDot.className  = 'rec-dot';
+      elRecLabel.textContent = '待機中';
+      elRecLabel.style.color = 'var(--color-text-muted)';
+      elTimer.className   = 'timer';
+      elBtnStart.disabled = false;
+      elBtnStop.disabled  = true;
+      elBtnReset.disabled = true;
+      elLangSelect.disabled = false;
+      elChunkInfo.textContent = '';
+      setStatus('idle', '待機中');
+
+      // 清空转录区
+      elTranscript.innerHTML = '';
+      elTransEmpty.style.display = '';
+      elTranscript.appendChild(elTransEmpty);
+      elTurnCount.textContent = '0 ターン';
+
+      // 清空合规区
+      elCompliance.innerHTML = '';
+      elCompEmpty.style.display = '';
+      elCompliance.appendChild(elCompEmpty);
+      elCompStats.style.display = 'none';
+      elStatViol.textContent = '⚠ 0 件违规';
+      elStatComp.textContent = '✓ 0 件合规';
+      elViolCount.textContent = '0 件違反';
+
+      // 隐藏报告区
+      elReportSection.classList.remove('visible');
+      document.getElementById('reportTotalScore').textContent = '—';
+      document.getElementById('scoresGrid').innerHTML = '';
+      document.getElementById('reportSummary').textContent = '—';
+      document.getElementById('reportFeedback').textContent = '—';
+    }
+
+    // ==============================================================
+    // 页面加载时检查浏览器支持
+    // ==============================================================
+    window.addEventListener('DOMContentLoaded', () => {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        showToast('このブラウザはマイク録音をサポートしていません。Chrome/Edge をお使いください。', 'error', 10000);
+        elBtnStart.disabled = true;
+      }
+      if (!window.AudioContext && !window.webkitAudioContext) {
+        showToast('Web Audio API が利用できません。最新のブラウザをお使いください。', 'error', 10000);
+        elBtnStart.disabled = true;
+      }
+      // AudioContext が webkitAudioContext のみの場合（Safari 旧版）に対応
+      if (!window.AudioContext && window.webkitAudioContext) {
+        window.AudioContext = window.webkitAudioContext;
+      }
+    });
+  </script>
+</body>
+</html>

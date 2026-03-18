@@ -1,0 +1,182 @@
+{
+  "session_id": "PF_NG_FUND_1119",
+  "business_scenario": "【稳健】毎月分配型ファンド 2025版",
+  "client_profile": "山田太郎 (71歳), 職業:新入社員",
+  "dialogue": [
+    {
+      "turn": 1,
+      "role": "agent",
+      "text_ja": "こんにちは、山田様。本日は当店へようこそ。担当の佐藤と申します。よろしくお願いいたします。",
+      "text_zh": "您好，山田先生。欢迎光临本店。我是负责人佐藤，请多关照。",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 2,
+      "role": "customer",
+      "text_ja": "佐藤さん、こんにちは。実は【稳健】毎月分配型ファンド2025版って聞いたんですが、私みたいな年寄りでも大丈夫か心配で…",
+      "text_zh": "佐藤先生，您好。我听说有款【稳健】毎月分配型基金2025版，像我这样的老人能买吗，有点担心…",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 3,
+      "role": "agent",
+      "text_ja": "山田様、それなら安心ですよ。このファンドは過去3年間毎月分配が予定通りで、将来も必ず安定した収益が続きますから。",
+      "text_zh": "山田先生，那您放心吧。这款基金过去3年每月分配都按计划进行，将来也一定会持续稳定收益。",
+      "compliance_status": "violation",
+      "violations": [
+        {
+          "violation_type": "Type 1",
+          "sub_category": "Certainty_Future",
+          "violation_offsets": [
+            {
+              "fragment": "将来も必ず安定した収益が続きますから",
+              "start": 37,
+              "end": 55
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 4,
+      "role": "customer",
+      "text_ja": "え？将来も必ず？耳が遠いので、もう一度言ってもらえますか？",
+      "text_zh": "哎？将来也一定？我耳朵不好，能再说一遍吗？",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 5,
+      "role": "agent",
+      "text_ja": "はい、過去の実績を見れば明らかです。将来も分配は減らず、元本も安全です。リスクの説明は長いから省きますね。",
+      "text_zh": "好的，看过去的业绩就清楚了。将来分配也不会减少，本金也安全。风险说明太长就省略了。",
+      "compliance_status": "violation",
+      "violations": [
+        {
+          "violation_type": "Type 1",
+          "sub_category": "Guarantee_Principal",
+          "violation_offsets": [
+            {
+              "fragment": "元本も安全です",
+              "start": 28,
+              "end": 35
+            }
+          ]
+        },
+        {
+          "violation_type": "Type 4",
+          "sub_category": "Non_Disclosure_Risk",
+          "violation_offsets": [
+            {
+              "fragment": "リスクの説明は長いから省きますね",
+              "start": 36,
+              "end": 52
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 6,
+      "role": "customer",
+      "text_ja": "リスクを省くの？でも投資って元本割れもあるんでしょ？心配です。",
+      "text_zh": "省略风险说明？但投资也会有本金亏损吧？我很担心。",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 7,
+      "role": "agent",
+      "text_ja": "大丈夫、このファンドは「穏健」って名前の通り絶対安全です。他の商品よりずっと良いですよ。",
+      "text_zh": "没问题的，这款基金叫“稳健”就如其名绝对安全。比其他产品好多了。",
+      "compliance_status": "violation",
+      "violations": [
+        {
+          "violation_type": "Type 1",
+          "sub_category": "Absolute_Safety",
+          "violation_offsets": [
+            {
+              "fragment": "絶対安全です",
+              "start": 22,
+              "end": 28
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 8,
+      "role": "customer",
+      "text_ja": "でも定期預金よりは高い利息かな？でも本当に大丈夫？耳が遠いから詳しく聞きたいのに…",
+      "text_zh": "但利息比定期存款高吧？可真的没问题吗？我耳朵不好想详细问问…",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 9,
+      "role": "agent",
+      "text_ja": "過去5年の平均利回りが年率4%で、これからもその調子でしょう。今なら申込期限も近いですよ。",
+      "text_zh": "过去5年平均收益率年化4%，接下来也会保持这个水平吧。现在申请期限也快到了。",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 10,
+      "role": "customer",
+      "text_ja": "私、新入社員なんですが、年齢71歳って関係ある？収入少ないけど…",
+      "text_zh": "我虽然是个新员工，但71岁了有关系吗？收入也不高…",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 11,
+      "role": "agent",
+      "text_ja": "年齢なんて関係ないです。このファンドは誰でも大丈夫。さっさと申し込んだ方が良いですよ。",
+      "text_zh": "年龄没关系。这款基金谁都能买。还是赶紧申请好吧。",
+      "compliance_status": "violation",
+      "violations": [
+        {
+          "violation_type": "Type 3",
+          "sub_category": "Unsuitable_Sales",
+          "violation_offsets": [
+            {
+              "fragment": "このファンドは誰でも大丈夫",
+              "start": 12,
+              "end": 25
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 12,
+      "role": "customer",
+      "text_ja": "手数料とか隠れてる費用はない？やっぱり不安で…",
+      "text_zh": "没有手续费之类的隐藏费用吧？还是觉得不安…",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 13,
+      "role": "agent",
+      "text_ja": "ないですよ、全部含まれてます。早く決めた方が良い、後悔しますよ。",
+      "text_zh": "没有的，都包含在内了。还是早点决定好，不然会后悔的。",
+      "compliance_status": "violation",
+      "violations": [
+        {
+          "violation_type": "Type 4",
+          "sub_category": "Hide_Fee",
+          "violation_offsets": [
+            {
+              "fragment": "ないですよ、全部含まれてます",
+              "start": 0,
+              "end": 14
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+# Web框架
+Flask==3.1.1
+flask-cors 
+
+# OpenAI SDK (兼容多个模型服务商)
+openai==1.84.0
+
+# 日志
+loguru==0.7.3
+
+# 配置文件解析
+PyYAML==6.0.2
+
+# 图片处理
+Pillow==12.0.0
+# 请求库
+requests==2.32.3
+# 生产环境部署
+gunicorn
+gevent
+

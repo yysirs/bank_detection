@@ -1,0 +1,244 @@
+{
+  "session_id": "PF_NG_FUND_0889",
+  "business_scenario": "【稳健】毎月分配型ファンド Pro",
+  "client_profile": "山田太郎 (57歳), 職業:フリーター",
+  "dialogue": [
+    {
+      "turn": 1,
+      "role": "agent",
+      "text_ja": "こんにちは、山田様。本日は当店へようこそ。担当の佐藤と申します。よろしくお願いいたします。",
+      "text_zh": "您好，山田先生。欢迎光临本店。我是负责人佐藤。请多关照。",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 2,
+      "role": "customer",
+      "text_ja": "最近収入が不安定で、毎月ちょっとでも入ってくるものが欲しいんです。何か良い商品はありますか？",
+      "text_zh": "最近收入不稳定，想要每月有点进账的东西。有什么好商品吗？",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 3,
+      "role": "agent",
+      "text_ja": "そうですね、【稳健】毎月分配型ファンド Proがお勧めです。毎月分配金が振り込まれ、**利息のように安定した収入**になりますよ。",
+      "text_zh": "这样啊，推荐您【稳健】每月分配型基金Pro。每月会汇入分配金，就像利息一样成为稳定的收入哦。",
+      "compliance_status": "violation",
+      "violations": [
+        {
+          "violation_type": "Type 2",
+          "sub_category": "Misstate_Mechanism",
+          "violation_offsets": [
+            {
+              "fragment": "利息のように安定した収入",
+              "start": 44,
+              "end": 56
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 4,
+      "role": "customer",
+      "text_ja": "利息？基金の分配金が利息なんて、普通はないと思うんですが…",
+      "text_zh": "利息？基金的分配金是利息，我觉得一般没有这种情况…",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 5,
+      "role": "agent",
+      "text_ja": "いえいえ、このファンドは特別で、**分配金は利息と同じ仕組み**で支払われます。銀行の定期預金よりも利回りが良いですよ。",
+      "text_zh": "不不，这款基金很特别，分配金是以和利息相同的机制支付的。比银行定期存款的利率还好哦。",
+      "compliance_status": "violation",
+      "violations": [
+        {
+          "violation_type": "Type 2",
+          "sub_category": "Misstate_Mechanism",
+          "violation_offsets": [
+            {
+              "fragment": "分配金は利息と同じ仕組み",
+              "start": 18,
+              "end": 30
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 6,
+      "role": "customer",
+      "text_ja": "でも、利息なら元本は減らないんでしょ？このファンドは大丈夫ですか？",
+      "text_zh": "但是，利息的话本金不会减少吧？这个基金没问题吗？",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 7,
+      "role": "agent",
+      "text_ja": "心配いりません。**分配金は利息なので元本は保証**され、減ることはありません。",
+      "text_zh": "不用担心。因为分配金是利息，所以本金有保障，不会减少。",
+      "compliance_status": "violation",
+      "violations": [
+        {
+          "violation_type": "Type 2",
+          "sub_category": "Misstate_Mechanism",
+          "violation_offsets": [
+            {
+              "fragment": "分配金は利息なので元本は保証",
+              "start": 10,
+              "end": 24
+            }
+          ]
+        },
+        {
+          "violation_type": "Type 1",
+          "sub_category": "Guarantee_Principal",
+          "violation_offsets": [
+            {
+              "fragment": "元本は保証",
+              "start": 19,
+              "end": 24
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 8,
+      "role": "customer",
+      "text_ja": "つまり、毎月利息のような分配金が入り、元本も減らない…そういうことですか？",
+      "text_zh": "也就是说，每月有像利息一样的分配金入账，本金也不减少…是这样吗？",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 9,
+      "role": "agent",
+      "text_ja": "そうです。例えば100万円入れても、**利息として毎月5000円**が入ってきます。これが分配金です。",
+      "text_zh": "是的。比如投入100万日元，作为利息每月会入账5000日元。这就是分配金。",
+      "compliance_status": "violation",
+      "violations": [
+        {
+          "violation_type": "Type 2",
+          "sub_category": "Misstate_Mechanism",
+          "violation_offsets": [
+            {
+              "fragment": "利息として毎月5000円",
+              "start": 20,
+              "end": 32
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 10,
+      "role": "customer",
+      "text_ja": "リスクは全然ないんですか？以前聞いたことがあるんですが、基金は値動きがあるって。",
+      "text_zh": "完全没有风险吗？我以前听说过，基金是有价格波动的。",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 11,
+      "role": "agent",
+      "text_ja": "このファンドは『稳健』タイトルですから、**分配金は利息だからリスクゼロ**です。値動きなんて関係ありません。",
+      "text_zh": "这款基金有“稳健”标题，因为分配金是利息所以风险为零。和价格波动没关系。",
+      "compliance_status": "violation",
+      "violations": [
+        {
+          "violation_type": "Type 2",
+          "sub_category": "Misstate_Mechanism",
+          "violation_offsets": [
+            {
+              "fragment": "分配金は利息だからリスクゼロ",
+              "start": 22,
+              "end": 36
+            }
+          ]
+        },
+        {
+          "violation_type": "Type 1",
+          "sub_category": "Risk_Nullification",
+          "violation_offsets": [
+            {
+              "fragment": "リスクゼロ",
+              "start": 31,
+              "end": 36
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 12,
+      "role": "customer",
+      "text_ja": "私、フリーターで収入不安定なんですが、本当に向いてますか？",
+      "text_zh": "我是自由职业者，收入不稳定，真的适合吗？",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 13,
+      "role": "agent",
+      "text_ja": "もちろんです！**分配金は利息なので誰でも安心**です。山田様のような方に最適ですよ。",
+      "text_zh": "当然！因为分配金是利息所以谁都能放心。非常适合山田先生这样的客户哦。",
+      "compliance_status": "violation",
+      "violations": [
+        {
+          "violation_type": "Type 2",
+          "sub_category": "Misstate_Mechanism",
+          "violation_offsets": [
+            {
+              "fragment": "分配金は利息なので誰でも安心",
+              "start": 9,
+              "end": 23
+            }
+          ]
+        },
+        {
+          "violation_type": "Type 3",
+          "sub_category": "Unsuitable_Sales",
+          "violation_offsets": [
+            {
+              "fragment": "山田様のような方に最適ですよ",
+              "start": 28,
+              "end": 42
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 14,
+      "role": "customer",
+      "text_ja": "じゃあ、今すぐ始められますか？手続きは簡単ですか？",
+      "text_zh": "那现在就能开始吗？手续简单吗？",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 15,
+      "role": "agent",
+      "text_ja": "はい、簡単です。まず契約書に署名ください。後ほど詳細をご説明します。",
+      "text_zh": "是的，很简单。首先在合同上签字。稍后详细说明。",
+      "compliance_status": "violation",
+      "violations": [
+        {
+          "violation_type": "Type 4",
+          "sub_category": "Non_Disclosure_Risk",
+          "violation_offsets": [
+            {
+              "fragment": "まず契約書に署名ください",
+              "start": 8,
+              "end": 20
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

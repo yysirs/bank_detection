@@ -1,0 +1,210 @@
+{
+  "session_id": "PF_NG_FUND_1222",
+  "business_scenario": "【輝き】毎月分配型ファンド Ⅱ",
+  "client_profile": "山田太郎 (65歳), 職業:フリーター",
+  "dialogue": [
+    {
+      "turn": 1,
+      "role": "agent",
+      "text_ja": "山田様、本日はありがとうございます。担当の佐藤と申します。よろしくお願いいたします。",
+      "text_zh": "山田先生，感谢您今天光临。我是负责人佐藤，请多关照。",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 2,
+      "role": "customer",
+      "text_ja": "はい、よろしく。最近老後のことで少し不安で、投資の相談に来たんです。",
+      "text_zh": "好的，请多关照。最近因为养老的事有点不安，来咨询投资的。",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 3,
+      "role": "agent",
+      "text_ja": "なるほど。【輝き】毎月分配型ファンドⅡは、毎月分配金が出るタイプです。年率4.5％の目標ですが、市場により変動します。",
+      "text_zh": "原来如此。【辉き】每月分配型基金Ⅱ是每月有分红的类型。目标年率4.5%，但会因市场变动。",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 4,
+      "role": "agent",
+      "text_ja": "【輝き】毎月分配型ファンドⅡは、売って買って繰り返す回転売買が一番効率的ですよ。分配金受け取ったらすぐ再投資すれば、複利で増えていきますから。",
+      "text_zh": "【辉き】每月分配型基金Ⅱ，进行买卖反复的回转交易是最有效率的哦。拿到分红后立即再投资，就能靠复利增长。",
+      "compliance_status": "violation",
+      "violations": [
+        {
+          "violation_type": "Type 3",
+          "sub_category": "Churning",
+          "violation_offsets": [
+            {
+              "fragment": "売って買って繰り返す回転売買が一番効率的ですよ",
+              "start": 16,
+              "end": 39
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 5,
+      "role": "customer",
+      "text_ja": "え？頻繁に売買するんですか？私65歳でフリーターだから、そんなリスク高いの心配です。",
+      "text_zh": "哎？要频繁买卖吗？我65岁了还是自由职业，担心这种高风险。",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 6,
+      "role": "agent",
+      "text_ja": "大丈夫ですよ！今の相場なら、売ってすぐ買い戻すだけで手数料以上に差益が出やすい。回転売買こそこのファンドの醍醐味ですから。",
+      "text_zh": "没问题的！现在行情下，卖了马上买回就能轻松赚到超过手续费的差价。回转交易正是这个基金的精髓。",
+      "compliance_status": "violation",
+      "violations": [
+        {
+          "violation_type": "Type 3",
+          "sub_category": "Churning",
+          "violation_offsets": [
+            {
+              "fragment": "回転売買こそこのファンドの醍醐味ですから",
+              "start": 40,
+              "end": 60
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 7,
+      "role": "customer",
+      "text_ja": "でも、毎月分配金が出るなら、そのまま持ってればいいんじゃ…？頻繁取引は避けたいんです。",
+      "text_zh": "但是，既然每月有分红，一直持有不就好了…？我想避开频繁交易。",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 8,
+      "role": "agent",
+      "text_ja": "あ、今日中に上司から1件取れってプレッシャーかかってて…山田様にこのチャンス逃したくないんです。",
+      "text_zh": "啊，上司今天逼我必须成交一件…不想让山田先生错过这个机会。",
+      "compliance_status": "violation",
+      "violations": [
+        {
+          "violation_type": "Type 6",
+          "sub_category": "Pressure_Tactic",
+          "violation_offsets": [
+            {
+              "fragment": "今日中に上司から1件取れってプレッシャーかかってて",
+              "start": 2,
+              "end": 27
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 9,
+      "role": "customer",
+      "text_ja": "またプレッシャー…。元本割れの可能性もあるって説明書にあったでしょ？心配です。",
+      "text_zh": "又有压力…说明书上写着可能亏本金吧？我很担心。",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 10,
+      "role": "agent",
+      "text_ja": "それより、分配金を毎月受け取っては再投資する「積立回転」がお勧めです。複利効果で老後資金がぐんぐん増えますよ。",
+      "text_zh": "比起那个，我推荐每月拿分红再投资的‘定额回转’。复利效应能让养老资金快速增长哦。",
+      "compliance_status": "violation",
+      "violations": [
+        {
+          "violation_type": "Type 3",
+          "sub_category": "Churning",
+          "violation_offsets": [
+            {
+              "fragment": "分配金を毎月受け取っては再投資する「積立回転」がお勧めです",
+              "start": 5,
+              "end": 34
+            }
+          ]
+        },
+        {
+          "violation_type": "Type 1",
+          "sub_category": "Exaggerated_Profit",
+          "violation_offsets": [
+            {
+              "fragment": "複利効果で老後資金がぐんぐん増えますよ",
+              "start": 35,
+              "end": 54
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 11,
+      "role": "customer",
+      "text_ja": "手数料は？売買のたびにかかるんでしょ？損失が出たらどうするんですか？",
+      "text_zh": "手续费呢？每次买卖都要收吧？要是亏损了怎么办？",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 12,
+      "role": "agent",
+      "text_ja": "手数料なんて微々たるもの。回転売買で稼げばペイできるし、今の相場は下がらないから安心です。",
+      "text_zh": "手续费微不足道。靠回转交易赚了就能覆盖，现在行情不会跌，放心吧。",
+      "compliance_status": "violation",
+      "violations": [
+        {
+          "violation_type": "Type 1",
+          "sub_category": "Risk_Nullification",
+          "violation_offsets": [
+            {
+              "fragment": "今の相場は下がらないから安心です",
+              "start": 28,
+              "end": 44
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 13,
+      "role": "customer",
+      "text_ja": "うーん…もう一度考えさせてください。家族とも相談しないと…。",
+      "text_zh": "嗯…让我再考虑一下。得和家人商量商量…。",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 14,
+      "role": "agent",
+      "text_ja": "ダメですよ！今週中に募集終了する特別枠があるんです。今日決めないとチャンスなくなっちゃいます！",
+      "text_zh": "不行哦！本周有募集结束的特别名额。今天不定下来就没机会了！",
+      "compliance_status": "violation",
+      "violations": [
+        {
+          "violation_type": "Type 6",
+          "sub_category": "Fake_Deadline",
+          "violation_offsets": [
+            {
+              "fragment": "今週中に募集終了する特別枠があるんです。今日決めないとチャンスなくなっちゃいます！",
+              "start": 6,
+              "end": 47
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 15,
+      "role": "customer",
+      "text_ja": "そうですか…じゃあ、資料をいただいて、改めて連絡します。失礼します。",
+      "text_zh": "这样啊…那给我份资料，我改天再联系。告辞了。",
+      "compliance_status": "compliant",
+      "violations": []
+    }
+  ]
+}

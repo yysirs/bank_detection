@@ -1,0 +1,222 @@
+{
+  "session_id": "PF_NG_FUND_7832",
+  "business_scenario": "【富岳】AIテーマ株ファンド Ⅱ",
+  "client_profile": "山田太郎 (55歳), 職業:高齢の地主",
+  "dialogue": [
+    {
+      "turn": 1,
+      "role": "agent",
+      "text_ja": "山田様、本日はご来店ありがとうございます。担当の佐藤です。よろしくお願いいたします。",
+      "text_zh": "山田先生，感谢您今天光临。我是负责人佐藤。请多关照。",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 2,
+      "role": "customer",
+      "text_ja": "佐藤さん、こんにちは。最近【富岳】AIテーマ株ファンドⅡの話を聞いて、ちょっと興味が湧いたんだけど、本当に大丈夫かな。",
+      "text_zh": "佐藤先生，你好。最近听说【富岳】AI主题股基金Ⅱ，有点感兴趣，但真的没问题吗？",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 3,
+      "role": "agent",
+      "text_ja": "はい、山田様。このファンドは過去3年連続で年率22%の実績があり、今後もこのペースで増えるのは確実ですよ。",
+      "text_zh": "好的，山田先生。这款基金过去3年连续实现年化22%的业绩，今后也肯定会以这个速度增长哦。",
+      "compliance_status": "violation",
+      "violations": [
+        {
+          "violation_type": "Type 1",
+          "sub_category": "Certainty_Future",
+          "violation_offsets": [
+            {
+              "fragment": "今後もこのペースで増えるのは確実ですよ",
+              "start": 33,
+              "end": 52
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 4,
+      "role": "customer",
+      "text_ja": "え？過去が良くても将来は保証されないって聞いたけど…本当にそう思う？",
+      "text_zh": "哎？听说过去好不代表未来有保障…你真这么认为？",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 5,
+      "role": "agent",
+      "text_ja": "いえいえ、ここだけの話ですが、今週中に大手IT企業がこのファンドの主要保有株を買収すると噂が入ってます。",
+      "text_zh": "不不，悄悄告诉您，有传言说本周内会有大型IT企业收购这款基金的主要持仓股。",
+      "compliance_status": "violation",
+      "violations": [
+        {
+          "violation_type": "Type 2",
+          "sub_category": "Fake_Internal_Info",
+          "violation_offsets": [
+            {
+              "fragment": "ここだけの話ですが、今週中に大手IT企業がこのファンドの主要保有株を買収すると噂が入ってます",
+              "start": 5,
+              "end": 51
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 6,
+      "role": "customer",
+      "text_ja": "噂だけ？信憑性はあるの？私、高齢だから慎重にならざるを得ないんだ。",
+      "text_zh": "只是传言？有可信度吗？我年纪大了，不得不谨慎些。",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 7,
+      "role": "agent",
+      "text_ja": "間違いないですよ。私の知り合いがそのIT企業のIR部にいるんです。絶対に内情です。",
+      "text_zh": "没错。我有熟人就在那家IT企业的投资者关系部。绝对是内部消息。",
+      "compliance_status": "violation",
+      "violations": [
+        {
+          "violation_type": "Type 2",
+          "sub_category": "Fake_Internal_Info",
+          "violation_offsets": [
+            {
+              "fragment": "私の知り合いがそのIT企業のIR部にいるんです。絶対に内情です",
+              "start": 9,
+              "end": 40
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 8,
+      "role": "customer",
+      "text_ja": "他のAIファンドと比べて、このファンドの方が安全なの？",
+      "text_zh": "和其他AI基金相比，这款更安全吗？",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 9,
+      "role": "agent",
+      "text_ja": "もちろん！絶対安全、元本も保証されるから、山田様のような地主様には最適ですよ。",
+      "text_zh": "当然！绝对安全，本金也有保障，对山田先生这样的地主来说最合适了。",
+      "compliance_status": "violation",
+      "violations": [
+        {
+          "violation_type": "Type 1",
+          "sub_category": "Absolute_Safety",
+          "violation_offsets": [
+            {
+              "fragment": "絶対安全、元本も保証されるから",
+              "start": 5,
+              "end": 20
+            }
+          ]
+        },
+        {
+          "violation_type": "Type 1",
+          "sub_category": "Guarantee_Principal",
+          "violation_offsets": [
+            {
+              "fragment": "元本も保証されるから",
+              "start": 10,
+              "end": 20
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 10,
+      "role": "customer",
+      "text_ja": "でも、投資ってそんなに簡単に安全なの？ちょっと…不安だな。",
+      "text_zh": "但是，投资能这么简单就安全吗？有点…不安啊。",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 11,
+      "role": "agent",
+      "text_ja": "大丈夫、過去の実績を見れば分かります。この調子なら来年も最低20%は確実に儲かりますから。",
+      "text_zh": "没问题的，看过去的业绩就知道了。照这样下去，明年至少20%的收益是肯定的。",
+      "compliance_status": "violation",
+      "violations": [
+        {
+          "violation_type": "Type 1",
+          "sub_category": "Guarantee_Return",
+          "violation_offsets": [
+            {
+              "fragment": "来年も最低20%は確実に儲かりますから",
+              "start": 25,
+              "end": 44
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 12,
+      "role": "customer",
+      "text_ja": "確実に…？もう一度、その内情の話を教えてくれる？",
+      "text_zh": "肯定…？能再跟我说说那个内部消息吗？",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 13,
+      "role": "agent",
+      "text_ja": "はい、繰り返しますが、今週買収発表があるので、株価は一気に跳ね上がります。過去の実績と合わせれば、将来は間違いなく儲かります。",
+      "text_zh": "好的，我再重复一遍，本周会有收购公告，股价会一下子涨上去。结合过去的业绩，将来肯定能赚钱。",
+      "compliance_status": "violation",
+      "violations": [
+        {
+          "violation_type": "Type 1",
+          "sub_category": "Certainty_Future",
+          "violation_offsets": [
+            {
+              "fragment": "将来は間違いなく儲かります",
+              "start": 49,
+              "end": 62
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 14,
+      "role": "customer",
+      "text_ja": "うーん…もう少し考えさせて。高齢で、急いで決めるのは…",
+      "text_zh": "嗯…让我再考虑一下。年纪大了，急着决定不好…",
+      "compliance_status": "compliant",
+      "violations": []
+    },
+    {
+      "turn": 15,
+      "role": "agent",
+      "text_ja": "山田様、今なら特別に手数料を半分にできます。このチャンス逃したら後悔しますよ。",
+      "text_zh": "山田先生，现在可以特别把手续费减半。错过这个机会会后悔的哦。",
+      "compliance_status": "violation",
+      "violations": [
+        {
+          "violation_type": "Type 4",
+          "sub_category": "Non_Disclosure_Risk",
+          "violation_offsets": [
+            {
+              "fragment": "山田様、今なら特別に手数料を半分にできます。このチャンス逃したら後悔しますよ",
+              "start": 0,
+              "end": 38
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
