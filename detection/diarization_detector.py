@@ -133,11 +133,19 @@ class DiarizationComplianceDetector:
             fragment = v.get("fragment", "")
             offsets  = build_violation_offsets(turn.text, fragment, self.fuzzy_threshold)
             if offsets is None:
-                logger.warning(
-                    f"Turn {turn.turn_id}: fragment 无法定位 → '{fragment[:30]}' "
-                    f"(text='{turn.text[:40]}')"
+                # fragment 可能跨 turn 或被截断，在整个 batch 里搜索最匹配的 turn
+                best_turn, best_offsets = _find_best_turn(turns, fragment, self.fuzzy_threshold)
+                if best_turn is None:
+                    logger.warning(
+                        f"Turn {turn.turn_id}: fragment 无法定位 → '{fragment[:30]}' "
+                        f"(text='{turn.text[:40]}')"
+                    )
+                    continue
+                logger.info(
+                    f"Turn {turn.turn_id} fragment 重定位到 Turn {best_turn.turn_id}: '{fragment[:30]}'"
                 )
-                continue
+                turn    = best_turn
+                offsets = best_offsets
 
             match_type = "fuzzy" if offsets[0]["fragment"] != fragment else "exact"
             violations.append(DiarizationViolation(
@@ -236,3 +244,44 @@ def build_speaker_turns(
         )
         for i, t in enumerate(recent)
     ]
+
+
+def _find_best_turn(
+    turns: list[SpeakerTurn],
+    fragment: str,
+    fuzzy_threshold: float,
+) -> tuple[Optional[SpeakerTurn], Optional[list[dict]]]:
+    """
+    在 batch 内所有 turns 中搜索最能匹配 fragment 的 turn。
+    用于处理 LLM 返回的 fragment 跨 turn 或被截断的情况。
+
+    Returns:
+        (best_turn, offsets) 或 (None, None)
+    """
+    best_turn    = None
+    best_offsets = None
+    best_score   = 0.0
+
+    frag_stripped = fragment.replace(' ', '')
+
+    for t in turns:
+        # 先用去空格精确匹配
+        text_stripped = t.text.replace(' ', '')
+        if frag_stripped in text_stripped:
+            offsets = build_violation_offsets(t.text, fragment, fuzzy_threshold)
+            if offsets:
+                return t, offsets
+
+        # 再用模糊匹配，取最高分
+        offsets = build_violation_offsets(t.text, fragment, fuzzy_threshold * 0.9)
+        if offsets:
+            from difflib import SequenceMatcher
+            score = SequenceMatcher(None, frag_stripped, text_stripped).ratio()
+            if score > best_score:
+                best_score   = score
+                best_turn    = t
+                best_offsets = offsets
+
+    if best_turn and best_score >= fuzzy_threshold * 0.9:
+        return best_turn, best_offsets
+    return None, None

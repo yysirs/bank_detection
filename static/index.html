@@ -1028,7 +1028,9 @@
       processor:     null,        // ScriptProcessorNode
       audioStream:   null,        // 麦克风流
       pcmBuffer:     new Float32Array(0),  // 当前 chunk 的 PCM 样本（Float32Array）
-      chunkTimer:    null,        // 5s 切片定时器
+      chunkTimer:    null,        // 定时发送句柄
+      ws:            null,        // WebSocket 实例
+      _finishData:   null,        // finish 消息暂存
       turns:        {},          // turn 编号 → 气泡元素
       violationTurns: new Set(), // 有违规的 turn 集合
       totalCompliant:   0,       // 合规 turn 数
@@ -1156,7 +1158,9 @@
       }
 
       newTurns.forEach(turn => {
-        const { turn: turnNum, role, text_ja } = turn;
+        const { turn: turnNum, role } = turn;
+        // AWS 转录词间有空格，去掉后显示更自然
+        const text_ja = (turn.text_ja || '').replace(/ /g, '');
 
         // 若已存在相同 turn，更新 role 和文本（finish 调用时 role 已确定）
         if (state.turns[turnNum]) {
@@ -1471,30 +1475,56 @@
 
         showToast(`セッション開始: ${state.sessionId}`, 'success');
 
-        // 3. 用 Web Audio API 捕获 PCM（直接输出 16kHz 单声道，无需格式转换）
-        const SAMPLE_RATE   = 16000;
-        const CHUNK_MS      = 5000;   // 每 5 秒发送一次
-        const BUFFER_SIZE   = 4096;   // ScriptProcessorNode 缓冲区
+        // 3. 建立 WebSocket 连接
+        const wsProto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const ws = new WebSocket(`${wsProto}//${location.host}/ws/session/${state.sessionId}`);
+        state.ws = ws;
+        ws.binaryType = 'arraybuffer';
+
+        ws.onopen = () => {
+          console.log('[WS] 连接建立');
+        };
+        ws.onmessage = (event) => {
+          try {
+            const msg = JSON.parse(event.data);
+            if (msg.type === 'turns' && msg.data?.length) {
+              renderTurns(msg.data);
+              elChunkInfo.textContent = `T${msg.data[msg.data.length - 1].turn} 受信`;
+            } else if (msg.type === 'compliance' && msg.data) {
+              renderCompliance(msg.data);
+            } else if (msg.type === 'finish') {
+              // finish 结果由 handleStop 处理
+              state._finishData = msg.data;
+            } else if (msg.type === 'error') {
+              showToast(`サーバーエラー: ${msg.message}`, 'error');
+            }
+          } catch (e) {
+            console.error('[WS] 消息解析失败:', e);
+          }
+        };
+        ws.onerror = (e) => {
+          console.error('[WS] 错误:', e);
+          showToast('WebSocket 接続エラー', 'error');
+        };
+
+        // 4. 用 Web Audio API 捕获 PCM，每 SEND_MS 毫秒发送一次
+        const SAMPLE_RATE = 16000;
+        const SEND_MS     = 6000;   // 6s：AWS 说话人分离需要足够长的音频上下文
+        const BUFFER_SIZE = 4096;
 
         const audioCtx = new AudioContext({ sampleRate: SAMPLE_RATE });
         state.audioContext = audioCtx;
         state.pcmBuffer    = new Float32Array(0);
 
-        // Chrome 会将 AudioContext 置于 suspended 状态，必须显式 resume
-        if (audioCtx.state === 'suspended') {
-          await audioCtx.resume();
-        }
+        if (audioCtx.state === 'suspended') await audioCtx.resume();
         console.log('[Audio] AudioContext state:', audioCtx.state, '| sampleRate:', audioCtx.sampleRate);
 
-        // 麦克风 → ScriptProcessorNode（收集原始 PCM 样本）
         const source    = audioCtx.createMediaStreamSource(stream);
         const processor = audioCtx.createScriptProcessor(BUFFER_SIZE, 1, 1);
         state.processor = processor;
 
         processor.onaudioprocess = (e) => {
           if (!state.isRecording) return;
-          // 复制本次缓冲区的样本（Float32，范围 -1~1）
-          // 使用 typed array 拼接，避免 spread 运算符在大数组上栈溢出
           const samples = e.inputBuffer.getChannelData(0);
           const prev = state.pcmBuffer;
           const next = new Float32Array(prev.length + samples.length);
@@ -1506,41 +1536,25 @@
         source.connect(processor);
         processor.connect(audioCtx.destination);
 
-        // 辅助：将积累的 PCM 样本封装为 WAV Blob
-        function flushToWAV() {
-          if (!state.pcmBuffer || state.pcmBuffer.length === 0) return null;
-          const wav = encodePCMtoWAV(
-            state.pcmBuffer instanceof Float32Array
-              ? state.pcmBuffer
-              : new Float32Array(state.pcmBuffer),
-            SAMPLE_RATE
-          );
+        // 辅助：将积累的 PCM 样本转为 Int16 ArrayBuffer 直接发送（无 WAV header，更小）
+        function flushAndSend() {
+          if (!state.pcmBuffer || state.pcmBuffer.length === 0) return;
+          if (!state.ws || state.ws.readyState !== WebSocket.OPEN) return;
+          // Float32 → Int16 PCM
+          const f32 = state.pcmBuffer;
           state.pcmBuffer = new Float32Array(0);
-          return wav;
-        }
-
-        // 辅助：发送一个 chunk
-        async function sendCurrentChunk() {
-          const wav = flushToWAV();
-          if (!wav) return;
-
-          const idx = state.chunkIndex;
-          state.chunkIndex++;
-          elChunkInfo.textContent = `Chunk #${idx} 送信中...`;
-
-          try {
-            const result = await apiSendChunk(state.sessionId, wav, idx);
-            elChunkInfo.textContent = `Chunk #${result.chunk_index ?? idx} 完了`;
-            if (result.new_turns && result.new_turns.length) renderTurns(result.new_turns);
-            if (result.compliance) renderCompliance(result.compliance);
-          } catch (err) {
-            console.error('chunk 提交失败:', err);
-            showToast(`Chunk #${idx} 送信失敗: ${err.message}`, 'warning', 3000);
+          const i16 = new Int16Array(f32.length);
+          for (let i = 0; i < f32.length; i++) {
+            const s = Math.max(-1, Math.min(1, f32[i]));
+            i16[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
           }
+          state.ws.send(i16.buffer);
+          state.chunkIndex++;
+          elChunkInfo.textContent = `Chunk #${state.chunkIndex} 送信済`;
         }
 
-        // 4. 每 5 秒触发一次切片发送
-        state.chunkTimer = setInterval(sendCurrentChunk, CHUNK_MS);
+        // 每 SEND_MS 毫秒发送一次
+        state.chunkTimer = setInterval(flushAndSend, SEND_MS);
         setRecordingState(true);
         startTimer();
         setStatus('running', '録音中');
@@ -1563,26 +1577,23 @@
       stopTimer();
 
       try {
-        // 停止定时切片
+        // 停止定时发送
         if (state.chunkTimer) {
           clearInterval(state.chunkTimer);
           state.chunkTimer = null;
         }
 
-        // 发送剩余未满 5s 的 PCM 数据
-        if (state.pcmBuffer && state.pcmBuffer.length > 0 && state.sessionId) {
-          const wav = encodePCMtoWAV(
-            state.pcmBuffer instanceof Float32Array
-              ? state.pcmBuffer
-              : new Float32Array(state.pcmBuffer),
-            16000
-          );
+        // 发送剩余 PCM
+        if (state.pcmBuffer && state.pcmBuffer.length > 0 && state.ws?.readyState === WebSocket.OPEN) {
+          const f32 = state.pcmBuffer;
           state.pcmBuffer = new Float32Array(0);
-          const idx = state.chunkIndex++;
-          try {
-            const result = await apiSendChunk(state.sessionId, wav, idx);
-            if (result.new_turns && result.new_turns.length) renderTurns(result.new_turns);
-          } catch (e) { /* 忽略最后一包失败 */ }
+          const i16 = new Int16Array(f32.length);
+          for (let i = 0; i < f32.length; i++) {
+            const s = Math.max(-1, Math.min(1, f32[i]));
+            i16[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+          }
+          state.ws.send(i16.buffer);
+          await new Promise(r => setTimeout(r, 300));
         }
 
         // 断开 Web Audio 节点
@@ -1601,10 +1612,7 @@
           state.audioStream = null;
         }
 
-        // 等待网络请求完成
-        await new Promise(r => setTimeout(r, 800));
-
-        // 调用 finish
+        // 发送 finish 指令，等待服务端返回评分报告
         showLoading('セッション分析中...');
         setStatus('running', '分析中');
         elRecDot.className = 'rec-dot processing';
@@ -1612,12 +1620,34 @@
 
         let finishData;
         try {
-          finishData = await apiSessionFinish(state.sessionId);
+          if (state.ws?.readyState === WebSocket.OPEN) {
+            // 通过 WebSocket 发 finish 指令，等待 finish 消息
+            state._finishData = null;
+            state.ws.send('finish');
+            finishData = await new Promise((resolve, reject) => {
+              const timeout = setTimeout(() => reject(new Error('finish タイムアウト')), 60000);
+              const check = setInterval(() => {
+                if (state._finishData) {
+                  clearInterval(check);
+                  clearTimeout(timeout);
+                  resolve(state._finishData);
+                }
+              }, 200);
+            });
+          } else {
+            // WebSocket 已断开，降级到 HTTP
+            finishData = await apiSessionFinish(state.sessionId);
+          }
         } catch (e) {
           hideLoading();
           showToast(`評価レポート取得失敗: ${e.message}`, 'error');
           setStatus('error', '分析失敗');
           return;
+        } finally {
+          if (state.ws) {
+            state.ws.close();
+            state.ws = null;
+          }
         }
 
         hideLoading();

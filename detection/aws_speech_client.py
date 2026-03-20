@@ -147,6 +147,26 @@ class AWSSpeechClient:
             self._transcribe_pcm(pcm_data, language_code, enable_diarization)
         )
 
+    def transcribe_pcm(
+        self,
+        pcm_data: bytes,
+        language_code: str,
+        enable_diarization: bool = True,
+    ) -> TranscriptionResult:
+        """
+        直接转录裸 PCM 数据（16kHz 单声道）。
+
+        用于会话级累积音频的场景：上层代码自行维护完整会话的 PCM 缓冲区，
+        每次将「截至当前」的全部 PCM 发送给 AWS，以获得基于全局上下文的
+        说话人分离和按停顿分段的结果。
+        """
+        logger.info(
+            f"开始转录 PCM 流，长度={len(pcm_data)} bytes，语言：{language_code}"
+        )
+        return asyncio.run(
+            self._transcribe_pcm(pcm_data, language_code, enable_diarization)
+        )
+
     def transcribe_bytes(
         self,
         audio_bytes: bytes,

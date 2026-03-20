@@ -17,20 +17,28 @@
 
 from __future__ import annotations
 
+import json
 import logging
+import re
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
-from detection.aws_speech_client import AWSSpeechClient, TranscriptionPhrase
+from detection.aws_speech_client import (
+    AWSSpeechClient,
+    TranscriptionPhrase,
+    _strip_wav_header,
+)
+from detection.aws_client import BEDROCK_MODEL_MAP
 from detection.diarization_detector import (
     DiarizationComplianceDetector,
     build_speaker_turns,
     DEFAULT_WINDOW,
 )
 from detection.sales_evaluator import SalesEvaluator
+from detection.prompts import ROLE_DETECT_SYSTEM, ROLE_DETECT_USER_TEMPLATE
 
 logger = logging.getLogger(__name__)
 
@@ -48,6 +56,8 @@ class SessionState:
     chunk_count:      int = 0
     compliance_cache: dict[int, dict] = field(default_factory=dict)  # turn_id → compliance 结果
     created_at:       datetime = field(default_factory=datetime.now)
+    pcm_buffer:       bytes = b""           # 当前会话累计的裸 PCM 音频
+    last_phrase_index: int = 0              # 上次已消费到的 phrase 下标（基于全会话转写结果）
 
 
 # 内存会话存储（Demo 用；生产环境换 Redis）
@@ -113,51 +123,87 @@ def process_chunk(
     sess = _get_session(session_id)
     speech_client: AWSSpeechClient = sess._speech_client
 
-    # ── 1. 转录本 chunk ──
+    # ── 1. 剥离 WAV header，得到裸 PCM ──
     try:
-        result = speech_client.transcribe_bytes(
-            audio_bytes   = audio_bytes,
-            filename      = f"chunk_{chunk_index:04d}.wav",
-            locales       = [sess.language],
+        pcm_data = _strip_wav_header(audio_bytes)
+    except Exception as e:
+        logger.error(f"[{session_id}] chunk {chunk_index} 解析音频失败：{e}")
+        return {"chunk_index": chunk_index, "new_turns": [], "compliance": None}
+
+    # ── 2. 只转录当前 chunk 的 PCM（增量模式，延迟固定 ~1-2s）──
+    # 不再累积全量 PCM 重复转录，避免 30 分钟对话时延迟线性增长。
+    # 说话人 ID 一致性由 agent_speaker_id + LLM 周期校正跨 chunk 维护。
+    try:
+        result = speech_client.transcribe_pcm(
+            pcm_data           = pcm_data,
+            language_code      = sess.language,
             enable_diarization = True,
         )
     except Exception as e:
         logger.error(f"[{session_id}] chunk {chunk_index} 转录失败：{e}")
         return {"chunk_index": chunk_index, "new_turns": [], "compliance": None}
 
-    if not result.phrases:
+    phrases = result.phrases
+    if not phrases:
         logger.info(f"[{session_id}] chunk {chunk_index} 无转录内容（静音/噪音）")
         sess.chunk_count += 1
         return {"chunk_index": chunk_index, "new_turns": [], "compliance": None}
 
-    # ── 2. 确定 agent speaker ID（首次见到的说话人 = agent）──
-    # 注意：phrase.speaker 可能是 int，必须统一转为 str 再存储，
-    # 否则与后续 speaker_str（str 类型）比较时永远不匹配
-    if sess.agent_speaker_id is None and result.phrases:
-        first_speaker = result.phrases[0].speaker
-        sess.agent_speaker_id = str(first_speaker) if first_speaker is not None else "0"
-        logger.info(f"[{session_id}] 确定 agent speaker_id = {sess.agent_speaker_id}")
+    # 增量模式：每次转录结果都是当前 chunk 的全新 phrases，直接全部消费
+    new_phrases = phrases
 
-    # ── 3. 追加 turns（role 暂标为 unknown，合规检测时由 LLM 确定）──
+    # ── 4. 用 LLM 识别本 chunk 的 agent_speaker（每 chunk 都调用，确保跨 chunk 角色一致）──
+    chunk_speakers = list(dict.fromkeys(
+        str(p.speaker) for p in new_phrases if p.speaker is not None
+    ))
+    if not sess.agent_speaker_id:
+        sess.agent_speaker_id = chunk_speakers[0] if chunk_speakers else "0"
+
+    if len(chunk_speakers) >= 2:
+        # 本 chunk 有多个说话人，用 LLM 判断哪个是营业员
+        detected = _detect_agent_speaker(sess._bedrock_client, new_phrases)
+        if detected and detected != sess.agent_speaker_id:
+            logger.info(f"[{session_id}] chunk {chunk_index} LLM 角色识别: agent_speaker = {detected}")
+            sess.agent_speaker_id = detected
+    elif len(chunk_speakers) == 1:
+        # 本 chunk 只有一个说话人，结合历史 turns 判断角色
+        # 若历史最后一个 turn 是客户，则本 chunk 说话人可能是营业员（对话交替）
+        # 若历史最后一个 turn 是营业员，则本 chunk 说话人可能是营业员（继续说）
+        # 无法确定时沿用 agent_speaker_id，等下一个有多说话人的 chunk 再校正
+        pass
+
+    # ── 5. 将新 phrases 按说话人合并为 turns（同一说话人连续发言合并为一句）──
     new_turns: list[dict] = []
-    chunk_offset_ms = chunk_index * 5000
-
-    for phrase in result.phrases:
-        turn_id = len(sess.turns) + 1
-        # speaker 是 int（来自 TranscriptionPhrase），统一转为字符串
+    for phrase in new_phrases:
+        # 过滤纯标点 phrase（AWS 有时将 。、！ 作为 pronunciation 类型输出）
+        if not re.search(r'\w', phrase.text):
+            continue
         speaker_str = str(phrase.speaker) if phrase.speaker is not None else "0"
-        # role 先用已知的 agent_speaker_id 推断；如未确定则 pending
-        role = _map_role(speaker_str, sess.agent_speaker_id)
-        turn_dict = {
-            "turn":      turn_id,
-            "role":      role,
-            "text_ja":   phrase.text,
-            "text":      phrase.text,
-            "offset_ms": chunk_offset_ms + phrase.offset_ms,
-            "speaker":   speaker_str,
-        }
-        sess.turns.append(turn_dict)
-        new_turns.append(turn_dict)
+        # 若与上一个 turn 说话人相同，合并文本；否则新建 turn
+        if sess.turns and sess.turns[-1]["speaker"] == speaker_str:
+            last = sess.turns[-1]
+            last["text_ja"] += phrase.text
+            last["text"]    += phrase.text
+            # 同步更新 new_turns 中对应条目（若已在本批次中）
+            if new_turns and new_turns[-1] is last:
+                pass  # 直接修改了同一对象，无需额外操作
+            elif new_turns and new_turns[-1]["turn"] == last["turn"]:
+                pass
+            else:
+                new_turns.append(last)
+        else:
+            turn_id = len(sess.turns) + 1
+            role = _map_role(speaker_str, sess.agent_speaker_id)
+            turn_dict = {
+                "turn":      turn_id,
+                "role":      role,
+                "text_ja":   phrase.text,
+                "text":      phrase.text,
+                "offset_ms": phrase.offset_ms,
+                "speaker":   speaker_str,
+            }
+            sess.turns.append(turn_dict)
+            new_turns.append(turn_dict)
 
     sess.chunk_count += 1
 
@@ -321,10 +367,10 @@ def _run_compliance(sess: SessionState, window_size: int = DEFAULT_WINDOW) -> li
         logger.error(f"[{sess.session_id}] 合规检测失败：{e}")
         return []
 
-    # ── 更新 agent_speaker_id（以最新 LLM 判断为准）──
-    if sess.agent_speaker_id is None:
-        sess.agent_speaker_id = result.agent_speaker
-        logger.info(f"[{sess.session_id}] LLM 确认 agent_speaker = {result.agent_speaker}")
+    # ── 更新 agent_speaker_id（LLM 判断覆盖启发式初始值）──
+    if sess.agent_speaker_id != result.agent_speaker:
+        logger.info(f"[{sess.session_id}] agent_speaker 更新: {sess.agent_speaker_id} → {result.agent_speaker}")
+    sess.agent_speaker_id = result.agent_speaker
 
     # ── 回填所有 turns 的 role（含历史 turns）──
     for t in sess.turns:
@@ -370,3 +416,45 @@ def _run_compliance(sess: SessionState, window_size: int = DEFAULT_WINDOW) -> li
         })
         for st in speaker_turns
     ]
+
+
+def _detect_agent_speaker(bedrock_client, phrases) -> Optional[str]:
+    """
+    调用 Claude Haiku 轻量识别本 chunk 的营业员 Speaker ID。
+    只返回 agent_speaker 字符串，不做合规检测，延迟约 200ms。
+
+    Args:
+        bedrock_client: boto3 bedrock-runtime 客户端
+        phrases:        当前 chunk 的 TranscriptionPhrase 列表
+
+    Returns:
+        营业员的 Speaker ID 字符串（如 "0" 或 "1"），失败时返回 None
+    """
+    # 构建对话文本（保留 Speaker 标签，供 LLM 判断角色）
+    lines = []
+    for p in phrases:
+        spk = str(p.speaker) if p.speaker is not None else "0"
+        lines.append(f"Speaker {spk}: {p.text}")
+    dialogue_text = "\n".join(lines)
+
+    user_msg = ROLE_DETECT_USER_TEMPLATE.format(dialogue_text=dialogue_text)
+
+    try:
+        response = bedrock_client.converse(
+            modelId=BEDROCK_MODEL_MAP["claude-haiku-4-5-20251001"],
+            system=[{"text": ROLE_DETECT_SYSTEM}],
+            messages=[{"role": "user", "content": [{"text": user_msg}]}],
+            inferenceConfig={"maxTokens": 64},
+        )
+        raw = response["output"]["message"]["content"][0]["text"].strip()
+        # 兼容 LLM 在 JSON 外包裹 markdown 代码块的情况
+        if raw.startswith("```"):
+            raw = raw.split("```")[1]
+            if raw.startswith("json"):
+                raw = raw[4:]
+        data = json.loads(raw.strip())
+        agent_spk = str(data.get("agent_speaker", "")).strip()
+        return agent_spk if agent_spk else None
+    except Exception as e:
+        logger.warning(f"轻量角色识别失败：{e}")
+        return None

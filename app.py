@@ -1,24 +1,30 @@
 """
-日本银行合规检测 API 服务
+日本银行合规检测 API 服务（FastAPI）
 
 路由：
     POST /detect_realtime          — 实时单句违规检测（Claude Haiku 4.5）
     POST /evaluate_session         — 销售评价引擎（Claude Sonnet 4.6，四维度打分）
 
     POST /api/session/start        — 创建录音会话
-    POST /api/session/<id>/chunk   — 提交 5s 音频切片（转录 + 合规检测）
     POST /api/session/<id>/finish  — 结束会话，生成评分报告
     GET  /api/session/<id>/status  — 查询会话状态
+
+    WS   /ws/session/<id>          — WebSocket 实时音频流（替代 /chunk HTTP 接口）
 
     GET  /                         — 前端 Demo 页面
 """
 
+import asyncio
 import logging
 import os
 import traceback
+from functools import partial
 
 import yaml
-from flask import Flask, jsonify, request, send_from_directory
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, UploadFile, File, Form
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
+import uvicorn
 
 from detection.aws_client import make_bedrock_client_from_csv, load_credentials_from_csv
 from detection.aws_speech_client import make_aws_speech_client
@@ -32,11 +38,13 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-app = Flask(__name__, static_folder="static")
+app = FastAPI(title="Bank Detection API")
 
-PORT        = int(os.getenv("PORT", 16323))
+PORT         = int(os.getenv("PORT", 16323))
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
-CONFIG_PATH  = os.path.join(PROJECT_ROOT, "config.yaml")
+STATIC_DIR   = os.path.join(PROJECT_ROOT, "static")
+
+app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 
 # ─────────────────────────────────────────────
@@ -76,26 +84,25 @@ def _get_speech_client():
 # 前端页面
 # ─────────────────────────────────────────────
 
-@app.route("/")
+@app.get("/")
 def index():
-    return send_from_directory(app.static_folder, "index.html")
+    return FileResponse(os.path.join(STATIC_DIR, "index.html"))
 
 
 # ─────────────────────────────────────────────
-# POST /detect_realtime  — 单句合规检测（已有）
+# POST /detect_realtime
 # ─────────────────────────────────────────────
 
-@app.route("/detect_realtime", methods=["POST"])
-def detect_realtime():
+@app.post("/detect_realtime")
+async def detect_realtime(body: dict):
     try:
-        body    = request.get_json(force=True)
         turn    = body.get("turn", 0)
         role    = body.get("role", "agent")
         text_ja = body.get("text_ja", "")
         context = body.get("context", [])
 
         if not text_ja:
-            return jsonify({"code": "400", "message": "text_ja is required"}), 400
+            raise HTTPException(status_code=400, detail="text_ja is required")
 
         detector = RealtimeDetector(client=_get_bedrock_client())
         for ctx in context:
@@ -105,7 +112,7 @@ def detect_realtime():
             )
         result = detector.detect(turn=turn, role=role, text_ja=text_ja)
 
-        return jsonify({
+        return {
             "turn": result.turn,
             "role": result.role,
             "compliance_status": result.compliance_status,
@@ -114,146 +121,163 @@ def detect_realtime():
                  "violation_offsets": v.violation_offsets}
                 for v in result.violations
             ],
-        })
+        }
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"detect_realtime error: {e}\n{traceback.format_exc()}")
-        return jsonify({"code": "500", "message": str(e)}), 500
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 # ─────────────────────────────────────────────
-# POST /evaluate_session  — 四维度评分（已有）
+# POST /evaluate_session
 # ─────────────────────────────────────────────
 
-@app.route("/evaluate_session", methods=["POST"])
-def evaluate_session():
+@app.post("/evaluate_session")
+async def evaluate_session(session_data: dict):
     try:
-        session_data = request.get_json(force=True)
         if not session_data.get("dialogue"):
-            return jsonify({"code": "400", "message": "dialogue is required"}), 400
+            raise HTTPException(status_code=400, detail="dialogue is required")
         evaluator = SalesEvaluator(client=_get_bedrock_client())
-        return jsonify(evaluator.evaluate(session_data))
+        return evaluator.evaluate(session_data)
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"evaluate_session error: {e}\n{traceback.format_exc()}")
-        return jsonify({"code": "500", "message": str(e)}), 500
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 # ─────────────────────────────────────────────
-# POST /api/session/start  — 创建录音会话
+# POST /api/session/start
 # ─────────────────────────────────────────────
 
-@app.route("/api/session/start", methods=["POST"])
-def session_start():
-    """
-    创建新的录音会话。
-
-    Request JSON:
-        {"lang": "zh-CN", "speakers": 2}
-
-    Response JSON:
-        {"session_id": "sess_20260316_001"}
-    """
+@app.post("/api/session/start")
+async def session_start(body: dict = {}):
     try:
-        body     = request.get_json(force=True) or {}
-        lang     = body.get("lang", "zh-CN")
+        lang     = body.get("lang", "ja-JP")
         speakers = int(body.get("speakers", 2))
 
-        session_id = session_analyzer.create_session(
+        sid = session_analyzer.create_session(
             speech_client  = _get_speech_client(),
             bedrock_client = _get_bedrock_client(),
             language       = lang,
             max_speakers   = speakers,
         )
-        return jsonify({"session_id": session_id})
-
+        return {"session_id": sid}
     except Exception as e:
         logger.error(f"session_start error: {e}\n{traceback.format_exc()}")
-        return jsonify({"code": "500", "message": str(e)}), 500
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 # ─────────────────────────────────────────────
-# POST /api/session/<id>/chunk  — 提交音频切片
+# WS /ws/session/{session_id}  — 实时音频流
 # ─────────────────────────────────────────────
 
-@app.route("/api/session/<session_id>/chunk", methods=["POST"])
-def session_chunk(session_id: str):
+@app.websocket("/ws/session/{session_id}")
+async def ws_session(websocket: WebSocket, session_id: str):
     """
-    提交一个 5s 音频切片（multipart/form-data）。
+    WebSocket 实时音频流端点。
 
-    Form fields:
-        audio:       音频文件（WAV/PCM，16kHz 单声道）
-        chunk_index: 切片序号（整数，从 0 开始）
+    协议：
+        客户端 → 服务端：
+            - binary frame：裸 PCM 音频数据（16kHz 单声道 16-bit）
+            - text frame "finish"：结束会话，触发评分
 
-    Response JSON:
-        {
-          "chunk_index": 0,
-          "new_turns": [
-            {"turn": 1, "role": "pending", "text_ja": "...", "offset_ms": 0, "speaker": "0"}
-          ],
-          "compliance": null | [{"turn": 1, "compliance_status": "compliant", "violations": []}]
-        }
+        服务端 → 客户端：
+            - {"type": "turns",      "data": [...]}   新增转录轮次
+            - {"type": "compliance", "data": [...]}   合规检测结果
+            - {"type": "finish",     "data": {...}}   最终评分报告
+            - {"type": "error",      "message": "..."} 错误信息
     """
+    await websocket.accept()
+    logger.info(f"[{session_id}] WebSocket 连接建立")
+
+    chunk_index = 0
+    loop = asyncio.get_event_loop()
     try:
-        chunk_index = int(request.form.get("chunk_index", 0))
+        while True:
+            message = await websocket.receive()
 
-        if "audio" not in request.files:
-            return jsonify({"code": "400", "message": "audio file is required"}), 400
+            # ── 文本帧：控制指令 ──
+            if "text" in message:
+                cmd = message["text"].strip()
+                if cmd == "finish":
+                    logger.info(f"[{session_id}] 收到 finish 指令")
+                    # finish_session 内部调用 LLM（阻塞），放到线程池执行
+                    result = await loop.run_in_executor(
+                        None, session_analyzer.finish_session, session_id
+                    )
+                    await websocket.send_json({"type": "finish", "data": result})
+                    break
+                continue
 
-        audio_bytes = request.files["audio"].read()
-        if not audio_bytes:
-            return jsonify({"code": "400", "message": "audio file is empty"}), 400
+            # ── 二进制帧：PCM 音频数据 ──
+            if "bytes" in message:
+                audio_bytes = message["bytes"]
+                if not audio_bytes:
+                    continue
 
-        result = session_analyzer.process_chunk(
-            session_id  = session_id,
-            audio_bytes = audio_bytes,
-            chunk_index = chunk_index,
-        )
-        return jsonify(result)
+                # process_chunk 内部调用 asyncio.run()，必须在线程池里执行
+                # 否则会与 uvicorn 的 event loop 冲突
+                result = await loop.run_in_executor(
+                    None,
+                    partial(session_analyzer.process_chunk,
+                            session_id=session_id,
+                            audio_bytes=audio_bytes,
+                            chunk_index=chunk_index),
+                )
+                chunk_index += 1
 
+                if result.get("new_turns"):
+                    await websocket.send_json({
+                        "type": "turns",
+                        "data": result["new_turns"],
+                    })
+                if result.get("compliance"):
+                    await websocket.send_json({
+                        "type": "compliance",
+                        "data": result["compliance"],
+                    })
+
+    except WebSocketDisconnect:
+        logger.info(f"[{session_id}] WebSocket 断开")
     except KeyError as e:
-        return jsonify({"code": "404", "message": str(e)}), 404
+        logger.error(f"[{session_id}] session 不存在: {e}")
+        await websocket.send_json({"type": "error", "message": f"session not found: {e}"})
     except Exception as e:
-        logger.error(f"session_chunk error: {e}\n{traceback.format_exc()}")
-        return jsonify({"code": "500", "message": str(e)}), 500
+        logger.error(f"[{session_id}] WebSocket 错误: {e}\n{traceback.format_exc()}")
+        try:
+            await websocket.send_json({"type": "error", "message": str(e)})
+        except Exception:
+            pass
 
 
 # ─────────────────────────────────────────────
-# POST /api/session/<id>/finish  — 结束会话
+# POST /api/session/<id>/finish
 # ─────────────────────────────────────────────
 
-@app.route("/api/session/<session_id>/finish", methods=["POST"])
-def session_finish(session_id: str):
-    """
-    结束会话，触发最终合规扫描 + 四维度评分报告。
-
-    Response JSON:
-        {
-          "session_id": "...",
-          "transcript": [...],
-          "compliance_summary": {"total_agent_turns": N, "violation_turns": M, "violations": [...]},
-          "evaluation": {"total_score": 72, "scores": {...}, "summary": "...", "overall_feedback": "..."}
-        }
-    """
+@app.post("/api/session/{session_id}/finish")
+async def session_finish(session_id: str):
     try:
         result = session_analyzer.finish_session(session_id)
-        return jsonify(result)
-
+        return result
     except KeyError as e:
-        return jsonify({"code": "404", "message": str(e)}), 404
+        raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
         logger.error(f"session_finish error: {e}\n{traceback.format_exc()}")
-        return jsonify({"code": "500", "message": str(e)}), 500
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 # ─────────────────────────────────────────────
-# GET /api/session/<id>/status  — 查询会话状态
+# GET /api/session/<id>/status
 # ─────────────────────────────────────────────
 
-@app.route("/api/session/<session_id>/status", methods=["GET"])
-def session_status(session_id: str):
+@app.get("/api/session/{session_id}/status")
+async def session_status(session_id: str):
     status = session_analyzer.get_session_status(session_id)
     if status is None:
-        return jsonify({"code": "404", "message": "session not found"}), 404
-    return jsonify(status)
+        raise HTTPException(status_code=404, detail="session not found")
+    return status
 
 
 # ─────────────────────────────────────────────
@@ -261,4 +285,4 @@ def session_status(session_id: str):
 # ─────────────────────────────────────────────
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=PORT, debug=False)
+    uvicorn.run("app:app", host="0.0.0.0", port=PORT, reload=False)

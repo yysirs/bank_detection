@@ -33,6 +33,21 @@ def normalize_ja(text: str) -> str:
     return unicodedata.normalize("NFKC", text)
 
 
+def _strip_spaces_index_map(text: str) -> tuple[str, list[int]]:
+    """
+    去除文本中的空格，同时返回「去空格后索引 → 原始索引」的映射表。
+
+    例：text = "山田 様" → stripped = "山田様", map = [0, 1, 3]
+    """
+    stripped_chars: list[str] = []
+    index_map: list[int] = []
+    for i, ch in enumerate(text):
+        if ch != ' ':
+            stripped_chars.append(ch)
+            index_map.append(i)
+    return "".join(stripped_chars), index_map
+
+
 def resolve_offset(text_ja: str, fragment: str, fuzzy_threshold: float = 0.85) -> OffsetResult:
     """
     计算 fragment 在 text_ja 中的字符偏移。
@@ -74,7 +89,46 @@ def resolve_offset(text_ja: str, fragment: str, fuzzy_threshold: float = 0.85) -
             score=1.0,
         )
 
-    # ── 阶段3：滑动窗口模糊匹配 ──
+    # ── 阶段3：去除空格后精确匹配（AWS 转录词间有空格，LLM fragment 无空格）──
+    stripped_text, idx_map = _strip_spaces_index_map(text_ja)
+    stripped_frag = fragment.replace(' ', '')
+    norm_stripped  = normalize_ja(stripped_text)
+    norm_sfrag     = normalize_ja(stripped_frag)
+    sidx = norm_stripped.find(norm_sfrag)
+    if sidx != -1:
+        orig_start = idx_map[sidx]
+        orig_end   = idx_map[sidx + len(stripped_frag) - 1] + 1
+        original_fragment = text_ja[orig_start:orig_end]
+        return OffsetResult(
+            fragment=original_fragment,
+            start=orig_start,
+            end=orig_end,
+            match_type="exact",
+            score=1.0,
+        )
+
+    # ── 阶段4：fragment 比 text 长时，找 fragment 与 text 的最长公共子串 ──
+    # 场景：LLM 把多个 turn 内容拼成一个 fragment，或 text 被截断
+    stripped_frag_n = normalize_ja(fragment.replace(' ', ''))
+    stripped_text_n = normalize_ja(stripped_text)
+    lcs = _longest_common_substring(stripped_frag_n, stripped_text_n)
+    if lcs and len(lcs) >= 4:  # 至少4个字符才有意义
+        sidx = stripped_text_n.find(lcs)
+        if sidx != -1:
+            orig_start = idx_map[sidx]
+            orig_end   = idx_map[sidx + len(lcs) - 1] + 1
+            original_fragment = text_ja[orig_start:orig_end]
+            score = len(lcs) / max(len(stripped_frag_n), len(stripped_text_n))
+            if score >= fuzzy_threshold * 0.7:
+                return OffsetResult(
+                    fragment=original_fragment,
+                    start=orig_start,
+                    end=orig_end,
+                    match_type="fuzzy",
+                    score=round(score, 3),
+                )
+
+
     frag_len = len(fragment)
     best_score = 0.0
     best_idx = -1
@@ -130,3 +184,28 @@ def build_violation_offsets(
     if result.match_type == "not_found":
         return None
     return [{"fragment": result.fragment, "start": result.start, "end": result.end}]
+
+
+def _longest_common_substring(s1: str, s2: str) -> str:
+    """返回 s1 和 s2 的最长公共子串。"""
+    if not s1 or not s2:
+        return ""
+    m, n = len(s1), len(s2)
+    best_len = 0
+    best_end = 0
+    # dp[j] = 以 s1[i-1], s2[j-1] 结尾的公共子串长度
+    dp = [0] * (n + 1)
+    for i in range(1, m + 1):
+        prev = 0
+        for j in range(1, n + 1):
+            temp = dp[j]
+            if s1[i - 1] == s2[j - 1]:
+                dp[j] = prev + 1
+                if dp[j] > best_len:
+                    best_len = dp[j]
+                    best_end = j
+            else:
+                dp[j] = 0
+            prev = temp
+    return s2[best_end - best_len: best_end]
+
