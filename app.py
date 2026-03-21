@@ -21,7 +21,7 @@ import traceback
 from functools import partial
 
 import yaml
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, UploadFile, File, Form
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, UploadFile, File
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 import uvicorn
@@ -166,6 +166,26 @@ async def session_start(body: dict = {}):
         return {"session_id": sid}
     except Exception as e:
         logger.error(f"session_start error: {e}\n{traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ─────────────────────────────────────────────
+# POST /api/session/<id>/anchor
+# ─────────────────────────────────────────────
+
+@app.post("/api/session/{session_id}/anchor")
+async def session_anchor(session_id: str, audio: UploadFile = File(...)):
+    try:
+        audio_bytes = await audio.read()
+        if not audio_bytes:
+            raise HTTPException(status_code=400, detail="audio is required")
+        return session_analyzer.anchor_session(session_id, audio_bytes)
+    except KeyError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"session_anchor error: {e}\n{traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=str(e))
 
 

@@ -808,6 +808,125 @@
     ::-webkit-scrollbar-thumb:hover { background: var(--color-text-muted); }
 
     /* ============================================================
+       声纹锚定阶段（Phase 1）控制条
+       ============================================================ */
+    .anchor-phase-bar {
+      background: var(--color-surface);
+      border-bottom: 2px solid var(--color-primary);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-shrink: 0;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .phase-badge {
+      background: var(--color-primary);
+      color: #fff;
+      border-radius: 12px;
+      padding: 3px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+      flex-shrink: 0;
+      letter-spacing: .03em;
+    }
+    .phase-badge.phase-done { background: var(--color-compliant); }
+
+    .anchor-instruction {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+      min-width: 0;
+    }
+    .anchor-instruction-icon { font-size: 20px; flex-shrink: 0; }
+    .anchor-instruction-label {
+      font-size: 11px;
+      color: var(--color-text-secondary);
+      font-weight: 600;
+    }
+    .anchor-phrase {
+      font-size: 13.5px;
+      color: var(--color-primary);
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .anchor-countdown {
+      font-family: var(--font-mono);
+      font-size: 24px;
+      font-weight: 800;
+      min-width: 28px;
+      text-align: center;
+      flex-shrink: 0;
+      transition: color .2s;
+    }
+    /* 准备阶段：橙色 */
+    .anchor-countdown.preparing { color: var(--color-warning); }
+    /* 录音阶段：红色 + 闪烁 */
+    .anchor-countdown.recording {
+      color: var(--color-violation);
+      animation: blink 1s step-end infinite;
+    }
+
+    .anchor-phase-label {
+      font-size: 12px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 12px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .anchor-phase-label.preparing {
+      background: var(--color-warning-bg);
+      color: var(--color-warning);
+    }
+    .anchor-phase-label.recording {
+      background: var(--color-violation-bg);
+      color: var(--color-violation);
+      animation: blink .8s step-end infinite;
+    }
+
+    .anchor-result-badge {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 20px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .anchor-result-badge.success { background: var(--color-compliant-bg); color: var(--color-compliant); }
+    .anchor-result-badge.failed  { background: var(--color-violation-bg); color: var(--color-violation); }
+    .anchor-result-badge.pending { background: var(--color-warning-bg);   color: var(--color-warning);   }
+
+    .btn-anchor {
+      background: var(--color-primary);
+      color: #fff;
+      box-shadow: 0 2px 6px rgba(26,60,94,.35);
+      flex-shrink: 0;
+    }
+    .btn-anchor:hover:not(:disabled) { background: var(--color-primary-light); }
+    .btn-anchor.recording {
+      background: var(--color-violation);
+      box-shadow: 0 2px 6px rgba(220,38,38,.35);
+    }
+
+    .btn-skip {
+      background: transparent;
+      color: var(--color-text-muted);
+      border: 1px solid var(--color-border);
+      font-size: 12px;
+      padding: 6px 12px;
+      flex-shrink: 0;
+    }
+    .btn-skip:hover:not(:disabled) {
+      color: var(--color-text-primary);
+      border-color: var(--color-text-muted);
+    }
+
+    /* ============================================================
        响应式适配（最小宽度 860px 保证三区域可视）
        ============================================================ */
     @media (max-width: 900px) {
@@ -835,35 +954,28 @@
     <div class="header-badge">Phase 1 PoC</div>
   </header>
 
-  <!-- ===== 录音控制条 ===== -->
-  <div class="control-bar">
-    <!-- 开始录音 -->
-    <button id="btnStart" class="btn btn-start" onclick="handleStart()">
-      <span>●</span> 開始録音
-    </button>
+  <!-- ===== Phase 1：声纹锚定 ===== -->
+  <div id="anchorBar" class="anchor-phase-bar">
+    <span class="phase-badge">Step 1 / 2 &nbsp;声紋登録</span>
 
-    <!-- 停止并分析 -->
-    <button id="btnStop" class="btn btn-stop" onclick="handleStop()" disabled>
-      <span>■</span> 停止・分析
-    </button>
-
-    <!-- 重置 -->
-    <button id="btnReset" class="btn btn-reset" onclick="handleReset()" disabled>
-      ↺ リセット
-    </button>
-
-    <div class="control-divider"></div>
-
-    <!-- 录音指示灯 + 计时器 -->
-    <div class="rec-indicator">
-      <div id="recDot" class="rec-dot"></div>
-      <span id="recLabel" style="font-size:12px;color:var(--color-text-muted)">待機中</span>
+    <div class="anchor-instruction">
+      <span class="anchor-instruction-icon">🎙️</span>
+      <div>
+        <div id="anchorInstructionLabel" class="anchor-instruction-label">営業員のみ、以下の文章をはっきりと読み上げてください（約4秒）</div>
+        <div class="anchor-phrase">「本日はよろしくお願いいたします。」</div>
+      </div>
     </div>
-    <div id="timer" class="timer">00:00</div>
 
-    <div class="control-divider"></div>
+    <!-- 阶段标签（准备中 / 録音中）-->
+    <div id="anchorPhaseLabel" class="anchor-phase-label" style="display:none"></div>
 
-    <!-- 语言选择 -->
+    <!-- 倒计时数字 -->
+    <div id="anchorCountdown" class="anchor-countdown" style="display:none"></div>
+
+    <!-- 锚定结果（完成后显示）-->
+    <div id="anchorResultBadge" class="anchor-result-badge" style="display:none"></div>
+
+    <!-- 语言选择（只在 Phase 1 设置）-->
     <span class="lang-label">言語：</span>
     <select id="langSelect" class="lang-select">
       <option value="ja-JP">日本語</option>
@@ -871,10 +983,44 @@
       <option value="en-US">English</option>
     </select>
 
-    <!-- chunk 进度 -->
-    <div id="chunkInfo" class="chunk-info"></div>
+    <div class="control-divider"></div>
 
-    <!-- 状态消息 -->
+    <button id="btnAnchor" class="btn btn-anchor" onclick="handleAnchorStart()">
+      ● アンカー録音（4秒）
+    </button>
+    <button id="btnSkipAnchor" class="btn btn-skip" onclick="handleSkipAnchor()">
+      スキップ
+    </button>
+  </div>
+
+  <!-- ===== Phase 2：正式録音 ===== -->
+  <div id="recordingBar" class="control-bar" style="display:none">
+    <span class="phase-badge phase-done">Step 2 / 2 &nbsp;録音</span>
+
+    <!-- 锚定状态徽章 -->
+    <div id="anchorStatusInRecording" class="anchor-result-badge" style="display:none"></div>
+
+    <div class="control-divider"></div>
+
+    <button id="btnStart" class="btn btn-start" onclick="handleStart()">
+      <span>●</span> 開始録音
+    </button>
+    <button id="btnStop" class="btn btn-stop" onclick="handleStop()" disabled>
+      <span>■</span> 停止・分析
+    </button>
+    <button id="btnReset" class="btn btn-reset" onclick="handleReset()">
+      ↺ リセット
+    </button>
+
+    <div class="control-divider"></div>
+
+    <div class="rec-indicator">
+      <div id="recDot" class="rec-dot"></div>
+      <span id="recLabel" style="font-size:12px;color:var(--color-text-muted)">待機中</span>
+    </div>
+    <div id="timer" class="timer">00:00</div>
+
+    <div id="chunkInfo" class="chunk-info"></div>
     <div id="statusMsg" class="status-msg idle">待機中</div>
   </div>
 
@@ -1019,18 +1165,20 @@
     // 状态管理
     // ==============================================================
     const state = {
-      sessionId:    null,        // 当前会话 ID
+      sessionId:    null,        // 当前会话 ID（在 Phase 1 锚定阶段创建）
       isRecording:  false,       // 是否录音中
+      anchorDone:   false,       // 锚定是否完成（成功或跳过）
+      lowConfidenceMode: false,  // 是否处于低置信降级模式（锚定失败/跳过）
       chunkIndex:   0,           // 已发送的切片序号
       timerSeconds: 0,           // 录音秒数
       timerHandle:  null,        // setInterval 句柄
-      audioContext:  null,        // Web Audio API context（16kHz）
-      processor:     null,        // ScriptProcessorNode
-      audioStream:   null,        // 麦克风流
-      pcmBuffer:     new Float32Array(0),  // 当前 chunk 的 PCM 样本（Float32Array）
-      chunkTimer:    null,        // 定时发送句柄
-      ws:            null,        // WebSocket 实例
-      _finishData:   null,        // finish 消息暂存
+      audioContext:  null,       // Web Audio API context（16kHz）
+      processor:     null,       // ScriptProcessorNode
+      audioStream:   null,       // 麦克风流（Phase 1 锚定时开启，Phase 2 复用）
+      pcmBuffer:     new Float32Array(0),  // 当前 chunk 的 PCM 样本
+      chunkTimer:    null,       // 定时发送句柄
+      ws:            null,       // WebSocket 实例
+      _finishData:   null,       // finish 消息暂存
       turns:        {},          // turn 编号 → 气泡元素
       violationTurns: new Set(), // 有违规的 turn 集合
       totalCompliant:   0,       // 合规 turn 数
@@ -1061,6 +1209,16 @@
     const elLoadingOverlay= document.getElementById('loadingOverlay');
     const elLoadingText   = document.getElementById('loadingText');
     const elLangSelect    = document.getElementById('langSelect');
+    // Phase 1 专属元素
+    const elAnchorBar            = document.getElementById('anchorBar');
+    const elRecordingBar         = document.getElementById('recordingBar');
+    const elBtnAnchor            = document.getElementById('btnAnchor');
+    const elBtnSkipAnchor        = document.getElementById('btnSkipAnchor');
+    const elAnchorCountdown      = document.getElementById('anchorCountdown');
+    const elAnchorPhaseLabel     = document.getElementById('anchorPhaseLabel');
+    const elAnchorInstructionLbl = document.getElementById('anchorInstructionLabel');
+    const elAnchorResultBadge    = document.getElementById('anchorResultBadge');
+    const elAnchorStatusInRec    = document.getElementById('anchorStatusInRecording');
 
     // ==============================================================
     // 计时器
@@ -1400,6 +1558,55 @@
     }
 
     // ==============================================================
+    // API 调用：提交营业员锚定音频
+    // ==============================================================
+    async function apiSessionAnchor(sessionId, audioBlob) {
+      const form = new FormData();
+      form.append('audio', audioBlob, 'anchor.wav');
+      const resp = await fetch(`/api/session/${sessionId}/anchor`, {
+        method: 'POST',
+        body: form,
+      });
+      if (!resp.ok) {
+        const text = await resp.text();
+        throw new Error(`session/anchor 失败: HTTP ${resp.status} — ${text}`);
+      }
+      return resp.json();
+    }
+
+    // ==============================================================
+    // 采集固定时长音频，用于声纹锚定（返回 WAV Blob）
+    // ==============================================================
+    async function captureAnchorClip(stream, durationMs = 4000) {
+      const SAMPLE_RATE = 16000;
+      const BUFFER_SIZE = 4096;
+      const audioCtx = new AudioContext({ sampleRate: SAMPLE_RATE });
+      if (audioCtx.state === 'suspended') await audioCtx.resume();
+
+      let pcm = new Float32Array(0);
+      const source = audioCtx.createMediaStreamSource(stream);
+      const processor = audioCtx.createScriptProcessor(BUFFER_SIZE, 1, 1);
+
+      processor.onaudioprocess = (e) => {
+        const samples = e.inputBuffer.getChannelData(0);
+        const merged = new Float32Array(pcm.length + samples.length);
+        merged.set(pcm);
+        merged.set(samples, pcm.length);
+        pcm = merged;
+      };
+
+      source.connect(processor);
+      processor.connect(audioCtx.destination);
+
+      await new Promise(r => setTimeout(r, durationMs));
+
+      processor.disconnect();
+      source.disconnect();
+      await audioCtx.close();
+      return encodePCMtoWAV(pcm, SAMPLE_RATE);
+    }
+
+    // ==============================================================
     // API 调用：提交音频切片
     // ==============================================================
     async function apiSendChunk(sessionId, audioBlob, chunkIndex) {
@@ -1434,48 +1641,205 @@
     }
 
     // ==============================================================
-    // 核心逻辑：开始录音
+    // Phase 1：声纹锚定
+    // ==============================================================
+    async function handleAnchorStart() {
+      try {
+        elBtnAnchor.disabled     = true;
+        elBtnSkipAnchor.disabled = true;
+        elAnchorResultBadge.style.display = 'none';
+        elLangSelect.disabled = true;
+
+        // 1. 请求麦克风
+        if (!state.audioStream) {
+          try {
+            state.audioStream = await navigator.mediaDevices.getUserMedia({
+              audio: { channelCount: 1, sampleRate: 16000, echoCancellation: true, noiseSuppression: true }
+            });
+          } catch (e) {
+            showToast(`マイクへのアクセスが拒否されました: ${e.message}`, 'error');
+            _resetAnchorButtons();
+            return;
+          }
+        }
+
+        // 2. 创建后端会话
+        const lang = elLangSelect.value;
+        try {
+          const sessionData = await apiSessionStart(lang);
+          state.sessionId  = sessionData.session_id;
+          state.chunkIndex = 0;
+        } catch (e) {
+          showToast(`セッション開始失敗: ${e.message}`, 'error');
+          state.audioStream.getTracks().forEach(t => t.stop());
+          state.audioStream = null;
+          _resetAnchorButtons();
+          return;
+        }
+
+        // 3. 准备倒计时（3秒）+ 录制锚定音频（4秒），最多 3 次
+        const PREP_SECS   = 3;
+        const DURATION_MS = 4000;
+        let anchorOk   = false;
+        let failReason = '';
+
+        for (let attempt = 1; attempt <= 3; attempt++) {
+          // ── 准备阶段（橙色倒计时） ──
+          elAnchorInstructionLbl.textContent =
+            attempt === 1 ? '読み上げ準備をしてください...' : `もう一度読み上げてください（${attempt}/3）...`;
+          elAnchorPhaseLabel.textContent  = '準備中';
+          elAnchorPhaseLabel.className    = 'anchor-phase-label preparing';
+          elAnchorPhaseLabel.style.display = 'block';
+          elAnchorCountdown.className     = 'anchor-countdown preparing';
+          elAnchorCountdown.style.display = 'block';
+
+          for (let s = PREP_SECS; s >= 1; s--) {
+            elAnchorCountdown.textContent = String(s);
+            await new Promise(r => setTimeout(r, 1000));
+          }
+
+          // ── 录音开始提示（短暂闪烁） ──
+          elAnchorPhaseLabel.textContent = '● 録音中！';
+          elAnchorPhaseLabel.className   = 'anchor-phase-label recording';
+          elAnchorCountdown.className    = 'anchor-countdown recording';
+          elBtnAnchor.className          = 'btn btn-anchor recording';
+
+          // ── 录音倒计时（红色） ──
+          let remaining = Math.round(DURATION_MS / 1000);
+          elAnchorCountdown.textContent = String(remaining);
+          const tick = setInterval(() => {
+            remaining--;
+            elAnchorCountdown.textContent = remaining > 0 ? String(remaining) : '…';
+          }, 1000);
+
+          let anchorBlob;
+          try {
+            anchorBlob = await captureAnchorClip(state.audioStream, DURATION_MS);
+          } catch (e) {
+            clearInterval(tick);
+            elAnchorCountdown.style.display = 'none';
+            elAnchorPhaseLabel.style.display = 'none';
+            showToast(`録音失敗: ${e.message}`, 'error');
+            _resetAnchorButtons();
+            return;
+          }
+          clearInterval(tick);
+          elAnchorCountdown.style.display = 'none';
+          elAnchorPhaseLabel.style.display = 'none';
+          elBtnAnchor.className = 'btn btn-anchor';
+
+          // 提交
+          try {
+            const resp = await apiSessionAnchor(state.sessionId, anchorBlob);
+            if (resp.ok) { anchorOk = true; break; }
+            failReason = resp.reason || 'unknown';
+            if (!resp.need_retry) break;
+            if (attempt < 3) {
+              showToast(`アンカー失敗（${failReason}）、もう一度読み上げてください (${attempt}/3)`, 'warning', 3000);
+            }
+          } catch (e) {
+            failReason = e.message;
+            break;
+          }
+        }
+
+        // 4. 显示结果 → 进入 Phase 2
+        _transitionToRecordingPhase(anchorOk, failReason);
+
+      } catch (err) {
+        console.error('handleAnchorStart error:', err);
+        showToast(`予期しないエラー: ${err.message}`, 'error');
+        _resetAnchorButtons();
+      }
+    }
+
+    async function handleSkipAnchor() {
+      elBtnAnchor.disabled     = true;
+      elBtnSkipAnchor.disabled = true;
+      elLangSelect.disabled    = true;
+      try {
+        const lang = elLangSelect.value;
+        const sessionData = await apiSessionStart(lang);
+        state.sessionId          = sessionData.session_id;
+        state.chunkIndex         = 0;
+        state.lowConfidenceMode  = true;
+        _transitionToRecordingPhase(false, 'skipped');
+      } catch (e) {
+        showToast(`セッション開始失敗: ${e.message}`, 'error');
+        _resetAnchorButtons();
+      }
+    }
+
+    function _resetAnchorButtons() {
+      elBtnAnchor.disabled     = false;
+      elBtnSkipAnchor.disabled = false;
+      elLangSelect.disabled    = false;
+      elBtnAnchor.className    = 'btn btn-anchor';
+      elAnchorCountdown.style.display  = 'none';
+      elAnchorPhaseLabel.style.display = 'none';
+      elAnchorInstructionLbl.textContent = '営業員のみ、以下の文章をはっきりと読み上げてください（約4秒）';
+    }
+
+    function _transitionToRecordingPhase(anchorOk, failReason) {
+      state.anchorDone          = true;
+      state.lowConfidenceMode   = !anchorOk;
+
+      // 更新 Phase 1 结果徽章
+      if (anchorOk) {
+        elAnchorResultBadge.textContent = '✓ 声紋登録完了';
+        elAnchorResultBadge.className   = 'anchor-result-badge success';
+      } else {
+        const reasonLabel = failReason === 'skipped' ? 'スキップ' : failReason;
+        elAnchorResultBadge.textContent = `⚠ 低信頼モード（${reasonLabel}）`;
+        elAnchorResultBadge.className   = 'anchor-result-badge failed';
+      }
+      elAnchorResultBadge.style.display = 'block';
+
+      // 切换到 Phase 2
+      setTimeout(() => {
+        elAnchorBar.style.display    = 'none';
+        elRecordingBar.style.display = 'flex';
+
+        // 在 Phase 2 顶部显示锚定状态
+        if (anchorOk) {
+          elAnchorStatusInRec.textContent = '✓ 声紋確立済';
+          elAnchorStatusInRec.className   = 'anchor-result-badge success';
+        } else {
+          elAnchorStatusInRec.textContent = '⚠ 低信頼モード';
+          elAnchorStatusInRec.className   = 'anchor-result-badge failed';
+        }
+        elAnchorStatusInRec.style.display = 'block';
+
+        if (anchorOk) {
+          showToast('声紋登録完了。録音を開始してください。', 'success', 3000);
+        } else {
+          showToast('低信頼モードで継続します。録音を開始してください。', 'warning', 4000);
+        }
+        setStatus('idle', '録音待機中');
+      }, anchorOk ? 800 : 400);  // 成功时稍等一下让用户看到结果
+    }
+
+    // ==============================================================
+    // Phase 2：开始正式录音（会话和锚定已在 Phase 1 完成）
     // ==============================================================
     async function handleStart() {
       try {
         setStatus('running', '初期化中...');
 
-        // 1. 请求麦克风权限
-        let stream;
-        try {
-          stream = await navigator.mediaDevices.getUserMedia({
-            audio: {
-              channelCount: 1,
-              sampleRate: 16000,
-              echoCancellation: true,
-              noiseSuppression: true,
-            }
-          });
-        } catch (e) {
-          showToast(`マイクへのアクセスが拒否されました: ${e.message}`, 'error');
-          setStatus('error', 'マイクエラー');
-          return;
+        // 麦克风：Phase 1 已打开则复用，跳过时重新请求
+        if (!state.audioStream) {
+          try {
+            state.audioStream = await navigator.mediaDevices.getUserMedia({
+              audio: { channelCount: 1, sampleRate: 16000, echoCancellation: true, noiseSuppression: true }
+            });
+          } catch (e) {
+            showToast(`マイクへのアクセスが拒否されました: ${e.message}`, 'error');
+            setStatus('error', 'マイクエラー');
+            return;
+          }
         }
 
-        state.audioStream = stream;
-
-        // 2. 创建后端会话
-        const lang = elLangSelect.value;
-        let sessionData;
-        try {
-          sessionData = await apiSessionStart(lang);
-        } catch (e) {
-          showToast(`セッション開始失敗: ${e.message}`, 'error');
-          setStatus('error', 'API エラー');
-          stream.getTracks().forEach(t => t.stop());
-          return;
-        }
-        state.sessionId   = sessionData.session_id;
-        state.chunkIndex  = 0;
-
-        showToast(`セッション開始: ${state.sessionId}`, 'success');
-
-        // 3. 建立 WebSocket 连接
+        // 4. 建立 WebSocket 连接
         const wsProto = location.protocol === 'https:' ? 'wss:' : 'ws:';
         const ws = new WebSocket(`${wsProto}//${location.host}/ws/session/${state.sessionId}`);
         state.ws = ws;
@@ -1507,7 +1871,7 @@
           showToast('WebSocket 接続エラー', 'error');
         };
 
-        // 4. 用 Web Audio API 捕获 PCM，每 SEND_MS 毫秒发送一次
+        // 5. 用 Web Audio API 捕获 PCM，每 SEND_MS 毫秒发送一次
         const SAMPLE_RATE = 16000;
         const SEND_MS     = 6000;   // 6s：AWS 说话人分离需要足够长的音频上下文
         const BUFFER_SIZE = 4096;
@@ -1519,7 +1883,7 @@
         if (audioCtx.state === 'suspended') await audioCtx.resume();
         console.log('[Audio] AudioContext state:', audioCtx.state, '| sampleRate:', audioCtx.sampleRate);
 
-        const source    = audioCtx.createMediaStreamSource(stream);
+        const source    = audioCtx.createMediaStreamSource(state.audioStream);
         const processor = audioCtx.createScriptProcessor(BUFFER_SIZE, 1, 1);
         state.processor = processor;
 
@@ -1556,8 +1920,13 @@
         // 每 SEND_MS 毫秒发送一次
         state.chunkTimer = setInterval(flushAndSend, SEND_MS);
         setRecordingState(true);
+        if (state.lowConfidenceMode) {
+          setStatus('running', '低信頼モード録音中');
+        }
         startTimer();
-        setStatus('running', '録音中');
+        if (!state.lowConfidenceMode) {
+          setStatus('running', '録音中');
+        }
 
       } catch (err) {
         console.error('handleStart error:', err);
@@ -1681,13 +2050,10 @@
     }
 
     // ==============================================================
-    // 重置
+    // 重置（回到 Phase 1 声纹锚定）
     // ==============================================================
     function handleReset() {
       // 停止所有活跃录音（防御性处理）
-      if (state.mediaRecorder && state.mediaRecorder.state !== 'inactive') {
-        state.mediaRecorder.stop();
-      }
       if (state.audioStream) {
         state.audioStream.getTracks().forEach(t => t.stop());
         state.audioStream = null;
@@ -1698,9 +2064,10 @@
       Object.assign(state, {
         sessionId: null,
         isRecording: false,
+        anchorDone: false,
+        lowConfidenceMode: false,
         chunkIndex: 0,
         timerSeconds: 0,
-        mediaRecorder: null,
         audioStream: null,
         turns: {},
         violationTurns: new Set(),
@@ -1708,7 +2075,18 @@
         totalViolations: 0,
       });
 
-      // 重置 UI
+      // 回到 Phase 1
+      elRecordingBar.style.display = 'none';
+      elAnchorBar.style.display    = 'flex';
+      elAnchorResultBadge.style.display = 'none';
+      elAnchorStatusInRec.style.display = 'none';
+      elAnchorCountdown.style.display   = 'none';
+      elBtnAnchor.disabled     = false;
+      elBtnSkipAnchor.disabled = false;
+      elBtnAnchor.className    = 'btn btn-anchor';
+      elLangSelect.disabled    = false;
+
+      // 重置 Phase 2 UI
       updateTimerDisplay();
       elRecDot.className  = 'rec-dot';
       elRecLabel.textContent = '待機中';
@@ -1716,8 +2094,6 @@
       elTimer.className   = 'timer';
       elBtnStart.disabled = false;
       elBtnStop.disabled  = true;
-      elBtnReset.disabled = true;
-      elLangSelect.disabled = false;
       elChunkInfo.textContent = '';
       setStatus('idle', '待機中');
 
